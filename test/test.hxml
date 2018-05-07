@@ -4,5 +4,6 @@
 -lib tink_hxx
 -cp src/lib
 
+-lib hxnodejs
 -cp test/src
 -js test/build/js_test.js

@@ -49,13 +49,13 @@ class ReactMacro
 	#if macro
 	static public function replaceEntities(value:String, pos:Position)
 	{
-		if (value.indexOf('&') < 0) 
+		if (value.indexOf('&') < 0)
 			return value;
-		
+
 		var reEntity = ~/&[a-z0-9]+;/gi,
 				result = '',
 				index = 0;
-		
+
 		while (reEntity.matchSub(value, index))
 		{
 			result += reEntity.matchedLeft();
@@ -71,9 +71,9 @@ class ReactMacro
 					entity;
 				case e: e;
 			}
-			
+
 		}
-		
+
 		result += value.substr(index);
 		//TODO: consider giving warnings for isolated `&`
 		return result;
@@ -82,7 +82,7 @@ class ReactMacro
 		var exprs = switch c {
 			case null | { value: null }: [];
 			default: [for (c in tink.hxx.Generator.normalize(c.value)) child(c)];
-		} 
+		}
 		return {
 			individual: exprs,
 			compound: switch exprs {
@@ -92,7 +92,7 @@ class ReactMacro
 			}
 		}
 	}
-	
+
 	static function typeChecker(type:Expr, isHtml:Bool) {
 		function propsFor(placeholder:Expr):StringAt->Expr->Void {
 			placeholder = Context.storeTypedExpr(Context.typeExpr(placeholder));
@@ -105,11 +105,11 @@ class ReactMacro
 				});
 			}
 		}
-		return 
+		return
 			if (isHtml) function (_, _) {}
 			else switch type.typeof().sure() {
 				case TFun(args, _):
-					
+
 					switch args {
 						case []: function (_, e:Expr) e.reject('no props allowed here');
 						case [v]: propsFor(macro @:pos(type.pos) {
@@ -126,15 +126,15 @@ class ReactMacro
 						}
 						@:privateAccess get($type).props;
 					});
-			} 
+			}
 	}
 
-	static function child(c:Child) 
+	static function child(c:Child)
 		return switch c.value {
 			case CText(s): macro @:pos(s.pos) $v{replaceEntities(s.value, s.pos)};
 			case CExpr(e): e;
-			case CNode(n): 
-				var type = 
+			case CNode(n):
+				var type =
 					switch n.name.value.split('.') {
 						case [tag] if (tag.charAt(0) == tag.charAt(0).toLowerCase()):
 							macro @:pos(n.name.pos) $v{tag};
@@ -144,7 +144,7 @@ class ReactMacro
 
 				var isHtml = type.getString().isSuccess();//TODO: this is a little awkward
 				if (!isHtml) JsxStaticMacro.handleJsxStaticProxy(type);
-				
+
 				var checkProp = typeChecker(type, isHtml),
 				    attrs = new Array<ObjectField>(),
 				    spread = [],
@@ -168,7 +168,7 @@ class ReactMacro
 							case 'ref': ref = expr;
 							default: add(name, value);
 						}
-				}	
+				}
 				// parse children
 				var children = children(n.children);
 
@@ -205,9 +205,9 @@ class ReactMacro
 					var args = [type, props].concat(children.individual);
 					macro @:pos(n.name.pos) react.React.createElement($a{args});
 				}
-			case CSplat(_): 
+			case CSplat(_):
 				c.pos.error('jsx does not support child splats');
-			case CIf(cond, cons, alt): 
+			case CIf(cond, cons, alt):
 				macro @:pos(cond.pos) if ($cond) ${body(cons)} else ${body(alt)};
 			case CFor(head, expr):
 				macro @:pos(head.pos) ([for ($head) ${body(expr)}]:Array<Dynamic>);
@@ -222,7 +222,7 @@ class ReactMacro
 
 	static function body(c:Children)
 		return macro ($a{children(c).individual}:Array<Dynamic>);
-	
+
 	static var componentsMap:Map<String, ComponentInfo> = new Map();
 
 	static function genLiteral(type:Expr, props:Expr, ref:Expr, key:Expr, pos:Position)
@@ -231,7 +231,7 @@ class ReactMacro
 		if (ref == null) ref = macro null;
 
 		var fields:Array<ObjectField> = [
-			{field: #if (haxe_ver < 4) "@$__hx__$$typeof" #else "$$typeof", quotes: DoubleQuotes #end, expr: macro untyped __js__("$$tre")},
+			{field: #if (haxe_ver < 4) "@$__hx__$$typeof" #else "$$typeof", quotes: Quoted #end, expr: macro untyped __js__("$$tre")},
 			{field: 'type', expr: type},
 			{field: 'props', expr: props}
 		];

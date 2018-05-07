@@ -1,5 +1,9 @@
 # Haxe React
 
+[![TravisCI Build Status](https://travis-ci.org/massiveinteractive/haxe-react.svg?branch=master)](https://travis-ci.org/massiveinteractive/haxe-react)
+[![Haxelib Version](https://img.shields.io/github/tag/massiveinteractive/haxe-react.svg?label=haxelib)](http://lib.haxe.org/p/react)
+[![Join the chat at https://gitter.im/haxe-react](https://img.shields.io/badge/gitter-join%20chat-brightgreen.svg)](https://gitter.im/haxe-react/Lobby)
+
 A Haxe library offering externs and tool functions leveraging Haxe's excellent type system and
 compile time macros to offer a strongly typed language to work with the increasingly popular
 [React](https://facebook.github.io/react/) library.
@@ -120,28 +124,45 @@ class App extends ReactComponent {
 }
 ```
 
-### Gotchas
+### JSX Fragments
 
-JSX is not String magic! Do not concatenate Strings to construct the JSX expression.
+[Fragments](https://reactjs.org/docs/fragments.html) (React 16.2+) let you group 
+a list of children without adding extra nodes to the DOM. 
 
-In JavaScript:
-```javascript
-<div>{
-    isA ? <A/> : <B/>
-}</div>
-```
-is transformed (at build time) into:
-```javascript
-React.createElement('div', null, [
-    isA ? React.createElement(A) : React.createElement(B)
-]);
+Two syntaxes are supported:
+```jsx
+<Fragment>
+    Text
+    <span>more text</span>
+    Still more text
+</Fragment>
+
+// or short syntax:
+<>
+    Text
+    <span>more text</span>
+    Still more text
+</>
 ```
 
-While in Haxe, as nested JSX isn't yet supported, you must write:
-```haxe
-var content = isA ? jsx('<A/>') : jsx('<B/>');
-jsx('<div>{content}</div>');
-```
+### JSX gotchas
+
+1. JSX is not String magic! **Do not concatenate Strings** to construct the JSX expression
+
+2. Haxe's JSX parser is not "re-entrant"
+
+	In JavaScript you can nest JSX inside curly-brace expressions:
+	```javascript
+	return (
+	    <div>{ isA ? <A/> : <B/> }</div>
+	);
+	```
+
+	However this isn't allowed in Haxe, so you must extract nested JSX into variables:
+	```haxe
+	var content = isA ? jsx('<A/>') : jsx('<B/>');
+	return jsx('<div>{content}</div>');
+	```
 
 ## Components strict typing
 
@@ -221,23 +242,3 @@ Setting `-D react_render_warning` will enable runtime warnings for avoidable ren
 This will add a `componentDidUpdate` (or update the existing one) where a **shallowCompare** is done on current and previous props and state. If both did not change, a warning will be displayed in the console.
 
 False positives can happen if your props are not flat, due to the shallowCompare.
-
-
-## Changes
-
-### 1.3.0
-
-- React 16 support; React 15 is still compatible but won't support new APIs (`componentDidCatch`, `createPortal`)
-- added missing `ReactDOM.hydrate` method (server-side rendering)
-- added `@:jsxStatic` optional meta
-- breaking: `react.ReactPropTypes` now requires the NPM `prop-types` module
-
-### 1.2.1
-
-- fixed auto-complete issue on `this.state` caused by the `1.2.0` changes
-
-### 1.2.0
-
-- `setState` now accepts `Partial<T>`; where `T` is a `typedef`, `Partial<T>` is `T` will all the fields made optional
-- `react.React.PropTypes` removed in favor of `react.ReactPropTypes`
-- added `-D react_render_warning` option

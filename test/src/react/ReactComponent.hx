@@ -4,7 +4,7 @@ typedef ReactComponentProps = {
 	/**
 		Children have to be manipulated using React.Children.*
 	**/
-	@:optional var children:Dynamic; 
+	@:optional var children:Dynamic;
 }
 
 /**
