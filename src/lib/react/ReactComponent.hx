@@ -1,5 +1,6 @@
 package react;
 import js.Error;
+import haxe.extern.EitherType;
 
 typedef ReactComponentProps = {
 	/**
@@ -55,7 +56,7 @@ extern class ReactComponentOf<TProps, TState>
 	/**
 		https://facebook.github.io/react/docs/react-component.html#render
 	**/
-	function render():ReactElement;
+	function render():ReactFragment;
 
 	/**
 		https://facebook.github.io/react/docs/react-component.html#componentwillmount
@@ -111,3 +112,11 @@ typedef ReactElement = {
 	?key:Dynamic,
 	?ref:Dynamic
 }
+
+typedef ReactFragment = EitherType<
+	ReactElement,
+	EitherType<
+		Array<ReactFragment>,
+		EitherType<String, Float>
+	>
+>;

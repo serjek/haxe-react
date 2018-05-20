@@ -93,7 +93,7 @@ class ReactMacro
 		}
 	}
 
-	static function typeChecker(type:Expr, isHtml:Bool) {
+	static function typeChecker(type:Expr, nodePos:Position, isHtml:Bool) {
 		function propsFor(placeholder:Expr):StringAt->Expr->Void {
 			placeholder = Context.storeTypedExpr(Context.typeExpr(placeholder));
 			return function (name:StringAt, value:Expr) {
@@ -105,9 +105,18 @@ class ReactMacro
 				});
 			}
 		}
+
+		var t = type.typeof().sure();
+		try {
+			if (!Context.unify(t, Context.getType('react.React.CreateElementType')))
+				Context.error('JSX error: invalid node "${ExprTools.toString(type)}"', nodePos);
+		} catch (e:Dynamic) {
+			Context.error('JSX error: invalid node "${ExprTools.toString(type)}"', nodePos);
+		}
+
 		return
 			if (isHtml) function (_, _) {}
-			else switch type.typeof().sure() {
+			else switch t {
 				case TFun(args, _):
 
 					switch args {
@@ -145,7 +154,7 @@ class ReactMacro
 				var isHtml = type.getString().isSuccess();//TODO: this is a little awkward
 				if (!isHtml) JsxStaticMacro.handleJsxStaticProxy(type);
 
-				var checkProp = typeChecker(type, isHtml),
+				var checkProp = typeChecker(type, c.pos, isHtml),
 				    attrs = new Array<ObjectField>(),
 				    spread = [],
 				    key = null,
@@ -239,7 +248,7 @@ class ReactMacro
 		if (ref != null) fields.push({field: 'ref', expr: ref});
 		var obj = {expr: EObjectDecl(fields), pos: pos};
 
-		return macro @:pos(pos) ($obj : react.ReactComponent.ReactElement);
+		return macro @:pos(pos) ($obj : react.ReactComponent.ReactFragment);
 	}
 
 	static function canUseLiteral(typeInfo:ComponentInfo, ref:Expr)
