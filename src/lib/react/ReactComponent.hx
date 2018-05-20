@@ -16,7 +16,9 @@ typedef ReactComponent = ReactComponentOf<Dynamic, Dynamic>;
 typedef ReactComponentOfProps<TProps> = ReactComponentOf<TProps, Void>;
 typedef ReactComponentOfState<TState> = ReactComponentOf<Void, TState>;
 
-#if react_comp_legacy
+#if react_deprecated_refs
+// Keep the old ReactComponentOfPropsAndState typedef available for a few versions
+// But now we should use ReactComponentOf<TProps, TState> directly
 typedef ReactComponentOfPropsAndState<TProps, TState> = ReactComponentOf<TProps, TState>;
 #end
 
@@ -30,7 +32,11 @@ extern class ReactComponentOf<TProps, TState>
 {
 	var props(default, null):TProps;
 	var state(default, null):TState;
+
+	#if react_deprecated_context
+	// It's better to define it in your ReactComponent subclass as needed, with the right typing.
 	var context(default, null):Dynamic;
+	#end
 
 	function new(?props:TProps, ?context:Dynamic);
 
