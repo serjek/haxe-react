@@ -108,7 +108,7 @@ class ReactMacro
 
 		var t = type.typeof().sure();
 		try {
-			if (!Context.unify(t, Context.getType('react.React.CreateElementType')))
+			if (!Context.unify(t, Context.getType('react.ReactNode')))
 				Context.error('JSX error: invalid node "${ExprTools.toString(type)}"', nodePos);
 		} catch (e:Dynamic) {
 			Context.error('JSX error: invalid node "${ExprTools.toString(type)}"', nodePos);
