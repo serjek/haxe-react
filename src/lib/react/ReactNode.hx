@@ -2,8 +2,6 @@ package react;
 
 import haxe.Constraints.Function;
 import haxe.extern.EitherType;
-import react.ReactComponent.ReactElement;
-import react.ReactComponent.ReactFragment;
 
 #if macro
 import haxe.macro.Expr;
@@ -11,6 +9,8 @@ import haxe.macro.Context;
 
 abstract ReactNode(Dynamic)
 #else
+import react.ReactComponent;
+
 private typedef Node = EitherType<EitherType<String, Function>, Class<ReactComponent>>;
 abstract ReactNode(Node) to Node
 #end
@@ -50,9 +50,7 @@ abstract ReactNode(Node) to Node
 		switch (Context.typeof(expr)) {
 			case TType(_.get() => def, _):
 				try {
-					var module = ReactMacro.resolveDefModule(def);
-
-					switch (Context.getType(module)) {
+					switch (Context.getType(def.module)) {
 						case TInst(_.get() => clsType, _):
 							if (!clsType.meta.has(react.jsx.JsxStaticMacro.META_NAME))
 								Context.error(
@@ -81,3 +79,55 @@ abstract ReactNode(Node) to Node
 		return null;
 	}
 }
+
+abstract ReactNodeOf<TProps>(ReactNode) to ReactNode {
+	#if !macro
+	@:from
+	static public function fromFunctionWithProps<TProps, T:TProps>(f:T->ReactFragment):ReactNodeOf<TProps>
+	{
+		return cast f;
+	}
+
+	@:from
+	static public function fromComp<TProps, T:TProps, TState>(cls:Class<ReactComponentOf<T, TState>>):ReactNodeOf<TProps>
+	{
+		return cast cls;
+	}
+	#end
+
+	@:from
+	static public macro function fromExpr(expr:Expr)
+	{
+		if (!isReactNode(expr))
+		{
+			Context.error('Incompatible expression for ReactNode', expr.pos);
+			return null;
+		}
+
+		switch (Context.getExpectedType()) {
+			case TAbstract(_, [TType(_.get() => tProps, [])]):
+				Context.error(
+					'Props do not unify with ${tProps.name}',
+					expr.pos
+				);
+
+			default:
+				Context.error('Props do not unify', expr.pos);
+		}
+
+		return null;
+	}
+
+	#if macro
+	static function isReactNode(expr:Expr):Bool
+	{
+		try {
+			Context.typeExpr(macro { var a:react.ReactNode = $e{expr}; });
+			return true;
+		} catch (e:Dynamic) {
+			return false;
+		}
+	}
+	#end
+}
+
