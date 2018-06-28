@@ -142,6 +142,10 @@ class ReactMacro
 						});
 						case v: throw 'assert';//TODO: do something meaningful here
 					}
+
+				case TInst(_.toString() => "String", []):
+					function(_, _) {};
+
 				default:
 					propsFor(macro @:pos(type.pos) {
 						function get<T>(c:Class<T>):T {
