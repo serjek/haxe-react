@@ -19,29 +19,53 @@ abstract ReactNode(Node) to Node
 	@:from
 	static public function fromString(s:String):ReactNode
 	{
+		#if debug
+		if (s == null) return isNull();
+		#end
 		return cast s;
 	}
 
 	@:from
 	static public function fromFunction(f:Void->ReactFragment):ReactNode
 	{
+		#if debug
+		if (f == null) return isNull();
+		#end
 		return cast f;
 	}
 
 	@:from
 	static public function fromFunctionWithProps<TProps>(f:TProps->ReactFragment):ReactNode
 	{
+		#if debug
+		if (f == null) return isNull();
+		#end
 		return cast f;
 	}
 
 	@:from
 	static public function fromComp(cls:Class<ReactComponent>):ReactNode
 	{
+		#if debug
+		if (cls == null) return isNull();
+		#end
+
 		if (untyped cls.__jsxStatic != null)
 			return untyped cls.__jsxStatic;
 
 		return cast cls;
 	}
+
+	#if debug
+	static public function isNull():ReactNode {
+		js.Browser.console.error(
+			'Runtime value for ReactNode is null.'
+			+ ' Something may be wrong with your externs.'
+		);
+
+		return "div";
+	}
+	#end
 	#end
 
 	@:from
@@ -58,7 +82,9 @@ abstract ReactNode(Node) to Node
 									expr.pos
 								);
 							else
-								return macro $expr.__jsxStatic;
+								return macro {
+									$expr.__jsxStatic;
+								};
 
 						default: throw '';
 					}
