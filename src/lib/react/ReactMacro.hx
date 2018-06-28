@@ -78,6 +78,20 @@ class ReactMacro
 		//TODO: consider giving warnings for isolated `&`
 		return result;
 	}
+
+	static public function toFieldExpr(sl:Array<String>, pos:Position = null):Expr {
+		if (pos == null) pos = Context.currentPos();
+		return Lambda.fold(
+			sl,
+			function(s, e) {
+				return e == null
+					? (macro @:pos(pos) $i{s})
+					: (macro @:pos(pos) $e.$s);
+			},
+			null
+		);
+	}
+
 	static function children(c:tink.hxx.Children) {
 		var exprs = switch c {
 			case null | { value: null }: [];
@@ -148,7 +162,7 @@ class ReactMacro
 						case [tag] if (tag.charAt(0) == tag.charAt(0).toLowerCase()):
 							macro @:pos(n.name.pos) $v{tag};
 						case parts:
-							macro @:pos(n.name.pos) $p{parts};
+							macro @:pos(n.name.pos) ${toFieldExpr(parts, n.name.pos)};
 					}
 
 				var isHtml = type.getString().isSuccess();//TODO: this is a little awkward
