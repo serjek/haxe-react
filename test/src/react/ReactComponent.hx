@@ -1,4 +1,5 @@
 package react;
+import haxe.extern.EitherType;
 
 typedef ReactComponentProps = {
 	/**
@@ -10,28 +11,29 @@ typedef ReactComponentProps = {
 /**
 	STUB CLASSES
 **/
-typedef ReactComponent = ReactComponentOf<Dynamic, Dynamic, Dynamic>;
-typedef ReactComponentOfProps<TProps> = ReactComponentOf<TProps, Dynamic, Dynamic>;
-typedef ReactComponentOfState<TState> = ReactComponentOf<Dynamic, TState, Dynamic>;
-typedef ReactComponentOfRefs<TRefs> = ReactComponentOf<Dynamic, Dynamic, TRefs>;
-typedef ReactComponentOfStateAndRefs<TState, TRefs> = ReactComponentOf<Dynamic, TState, TRefs>;
-typedef ReactComponentOfPropsAndState<TProps, TState> = ReactComponentOf<TProps, TState, Dynamic>;
-typedef ReactComponentOfPropsAndRefs<TProps, TRefs> = ReactComponentOf<TProps, Dynamic, TRefs>;
+typedef ReactComponent = ReactComponentOf<Dynamic, Dynamic>;
+typedef ReactComponentOfProps<TProps> = ReactComponentOf<TProps, Void>;
+typedef ReactComponentOfState<TState> = ReactComponentOf<Void, TState>;
+
+#if react_deprecated_refs
+// Keep the old ReactComponentOfPropsAndState typedef available for a few versions
+// But now we should use ReactComponentOf<TProps, TState> directly
+typedef ReactComponentOfPropsAndState<TProps, TState> = ReactComponentOf<TProps, TState>;
+#end
 
 @:autoBuild(react.ReactComponentMacro.build())
-class ReactComponentOf<TProps, TState, TRefs>
+class ReactComponentOf<TProps, TState>
 {
 	static var defaultProps:Dynamic;
-	static var contextTypes:Dynamic;
 
 	var props(default, null):TProps;
 	var state(default, null):TState;
-	var context(default, null):Dynamic;
 
-	/**
-		https://facebook.github.io/react/docs/refs-and-the-dom.html
-	**/
-	var refs(default, null):TRefs;
+	#if react_deprecated_context
+	// It's better to define it in your ReactComponent subclass as needed, with the right typing.
+	static var contextTypes:Dynamic;
+	var context(default, null):Dynamic;
+	#end
 
 	function new(?props:TProps) {}
 
