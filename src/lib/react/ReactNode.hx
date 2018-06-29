@@ -63,7 +63,7 @@ abstract ReactNode(Node) to Node
 			+ ' Something may be wrong with your externs.'
 		);
 
-		return "div";
+		return cast "div";
 	}
 	#end
 	#end
