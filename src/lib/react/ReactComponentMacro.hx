@@ -17,7 +17,8 @@ class ReactComponentMacro {
 		react.ReactTypeMacro.ensureRenderOverride,
 		#end
 
-		#if (debug && react_render_warning)
+		// Note: react_render_warning should be deprecated
+		#if (debug && (react_render_warning || react_runtime_warnings))
 		react.ReactDebugMacro.buildComponent,
 		#end
 	];

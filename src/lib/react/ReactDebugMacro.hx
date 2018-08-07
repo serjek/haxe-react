@@ -17,6 +17,7 @@ class ReactDebugMacro
 		var pos = Context.currentPos();
 		var propsType:Null<ComplexType> = macro :Dynamic;
 		var stateType:Null<ComplexType> = macro :Dynamic;
+		var hasState = false;
 
 		switch (inClass.superClass)
 		{
@@ -26,12 +27,16 @@ class ReactDebugMacro
 
 				stateType = TypeTools.toComplexType(params[1]);
 				if (isEmpty(stateType)) stateType = null;
+				else hasState = true;
 
 			default:
 		}
 
 		if (!updateComponentUpdate(fields, inClass, propsType, stateType))
 			addComponentUpdate(fields, inClass, propsType, stateType);
+
+		if (hasState && !updateConstructor(fields, inClass, propsType, stateType))
+			addConstructor(fields, inClass, propsType, stateType);
 
 		return fields;
 	}
@@ -44,6 +49,83 @@ class ReactDebugMacro
 
 			default:
 				false;
+		};
+	}
+
+	static function updateConstructor(
+		fields:Array<Field>,
+		inClass:ClassType,
+		propsType:Null<ComplexType>,
+		stateType:Null<ComplexType>
+	) {
+		for (field in fields)
+		{
+			if (field.name == "new")
+			{
+				switch (field.kind) {
+					case FFun(f):
+						f.expr = macro {
+							${f.expr}
+							${exprConstructor(inClass)}
+						};
+
+						return true;
+					default:
+				}
+			}
+		}
+
+		return false;
+	}
+
+	static function addConstructor(
+		fields:Array<Field>,
+		inClass:ClassType,
+		propsType:Null<ComplexType>,
+		stateType:Null<ComplexType>
+	) {
+		var constructor = {
+			args: [
+				{
+					meta: [],
+					name: "props",
+					type: propsType == null ? macro :react.Empty : propsType,
+					opt: false,
+					value: null
+				}
+			],
+			ret: macro :Void,
+			expr: macro {
+				super(props);
+				${exprConstructor(inClass)};
+			}
+		}
+
+		fields.push({
+			name: 'new',
+			access: [APublic],
+			kind: FFun(constructor),
+			pos: inClass.pos
+		});
+	}
+
+	static function exprConstructor(inClass:ClassType)
+	{
+		return macro {
+			if (state == null) {
+				js.Browser.console.error(
+					'Warning: component ${inClass.name} is stateful but its '
+					+ '`state` is not initialized inside its constructor. '
+
+					+ 'Either add a `state = { ... }` statement to its constructor '
+					+ 'or define this component as a `ReactComponentOfProps` '
+					+ 'if it is only using `props`. '
+
+					+ 'If it is using neither `props` nor `state`, you might '
+					+ 'consider using `@:jsxStatic` to avoid unneeded lifecycle.'
+					// TODO: link to @:jsxStatic documentation when available
+				);
+			}
 		};
 	}
 
