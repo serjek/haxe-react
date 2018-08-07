@@ -22,10 +22,10 @@ class ReactDebugMacro
 		{
 			case {params: params, t: _.toString() => "react.ReactComponentOf"}:
 				propsType = TypeTools.toComplexType(params[0]);
-				if (isVoid(propsType)) propsType = null;
+				if (isEmpty(propsType)) propsType = null;
 
 				stateType = TypeTools.toComplexType(params[1]);
-				if (isVoid(stateType)) stateType = null;
+				if (isEmpty(stateType)) stateType = null;
 
 			default:
 		}
@@ -36,10 +36,10 @@ class ReactDebugMacro
 		return fields;
 	}
 
-	static function isVoid(type:ComplexType):Bool
+	static function isEmpty(type:ComplexType):Bool
 	{
 		return switch (type) {
-			case TPath({name: 'StdTypes', sub: 'Void', pack: [], params: []}):
+			case TPath({name: "Empty", sub: null, pack: ["react"], params: []}):
 				true;
 
 			default:
@@ -103,14 +103,14 @@ class ReactDebugMacro
 				{
 					meta: [],
 					name: "prevProps",
-					type: propsType,
+					type: propsType == null ? macro :react.Empty : propsType,
 					opt: false,
 					value: null
 				},
 				{
 					meta: [],
 					name: "prevState",
-					type: stateType,
+					type: stateType == null ? macro :react.Empty : stateType,
 					opt: false,
 					value: null
 				}
