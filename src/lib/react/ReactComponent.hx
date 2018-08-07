@@ -16,6 +16,7 @@ typedef ReactComponent = ReactComponentOf<Dynamic, Dynamic>;
 
 typedef ReactComponentOfProps<TProps> = ReactComponentOf<TProps, Empty>;
 typedef ReactComponentOfState<TState> = ReactComponentOf<Empty, TState>;
+typedef ReactComponentOfNothing = ReactComponentOf<Empty, Empty>;
 
 #if react_deprecated_refs
 // Keep the old ReactComponentOfPropsAndState typedef available for a few versions
