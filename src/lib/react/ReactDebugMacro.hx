@@ -9,7 +9,7 @@ import haxe.macro.TypeTools;
 
 class ReactDebugMacro
 {
-	public static inline var IGNORE_RERENDER_META = ':ignoreReRender';
+	public static inline var IGNORE_RENDER_WARNING_META = ':ignoreRenderWarning';
 	public static var firstRenderWarning:Bool = true;
 
 	#if macro
@@ -33,7 +33,7 @@ class ReactDebugMacro
 			default:
 		}
 
-		if (!inClass.meta.has(IGNORE_RERENDER_META))
+		if (!inClass.meta.has(IGNORE_RENDER_WARNING_META))
 			if (!updateComponentUpdate(fields, inClass, propsType, stateType))
 				addComponentUpdate(fields, inClass, propsType, stateType);
 
@@ -265,7 +265,7 @@ class ReactDebugMacro
 						'See https://facebook.github.io/react/docs/optimizing-performance.html#shouldcomponentupdate-in-action' +
 						'\n\nAlso note that legacy context API can trigger false positives if children ' +
 						'rely on context. You can hide this warning for a specific component by adding ' +
-						'`@${IGNORE_RERENDER_META}` meta to its class.'
+						'`@${IGNORE_RENDER_WARNING_META}` meta to its class.'
 					);
 				}
 			}
