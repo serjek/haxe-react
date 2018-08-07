@@ -156,15 +156,21 @@ class ReactDebugMacro
 
 			if (cond)
 			{
-				// Using Object.create(null) to avoid prototype for clean output
-				var debugProps = untyped Object.create(null);
-				debugProps.currentProps = this.props;
-				debugProps.prevProps = $i{prevProps};
+				${hasProps ? macro {
+					// Using Object.create(null) to avoid prototype for clean output
+					var debugProps = untyped Object.create(null);
+					debugProps.currentProps = this.props;
+					debugProps.prevProps = $i{prevProps};
 
-				js.Browser.console.warn(
-					'Warning: avoidable re-render of `${$v{inClass.name}}`.\n',
-					debugProps
-				);
+					js.Browser.console.warn(
+						'Warning: avoidable re-render of `${$v{inClass.name}}`.\n',
+						debugProps
+					);
+				} : macro {
+					js.Browser.console.warn(
+						'Warning: avoidable re-render of `${$v{inClass.name}}`.'
+					);
+				}};
 
 				if (react.ReactDebugMacro.firstRenderWarning)
 				{
