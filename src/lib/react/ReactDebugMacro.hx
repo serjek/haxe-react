@@ -5,7 +5,7 @@ import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 import haxe.macro.TypeTools;
-#end 
+#end
 
 class ReactDebugMacro
 {
@@ -15,14 +15,17 @@ class ReactDebugMacro
 	public static function buildComponent(inClass:ClassType, fields:Array<Field>):Array<Field>
 	{
 		var pos = Context.currentPos();
-		var propsType:ComplexType = macro :Dynamic;
-		var stateType:ComplexType = macro :Dynamic;
+		var propsType:Null<ComplexType> = macro :Dynamic;
+		var stateType:Null<ComplexType> = macro :Dynamic;
 
 		switch (inClass.superClass)
 		{
 			case {params: params, t: _.toString() => "react.ReactComponentOf"}:
 				propsType = TypeTools.toComplexType(params[0]);
+				if (isVoid(propsType)) propsType = null;
+
 				stateType = TypeTools.toComplexType(params[1]);
+				if (isVoid(stateType)) stateType = null;
 
 			default:
 		}
@@ -33,11 +36,22 @@ class ReactDebugMacro
 		return fields;
 	}
 
+	static function isVoid(type:ComplexType):Bool
+	{
+		return switch (type) {
+			case TPath({name: 'StdTypes', sub: 'Void', pack: [], params: []}):
+				true;
+
+			default:
+				false;
+		};
+	}
+
 	static function updateComponentUpdate(
 		fields:Array<Field>,
 		inClass:ClassType,
-		propsType:ComplexType,
-		stateType:ComplexType
+		propsType:Null<ComplexType>,
+		stateType:Null<ComplexType>
 	) {
 		for (field in fields)
 		{
@@ -48,8 +62,16 @@ class ReactDebugMacro
 						if (f.args.length != 2)
 							return Context.error('componentDidUpdate should accept two arguments', inClass.pos);
 
+						var expr = exprComponentDidUpdate(
+							inClass,
+							f.args[0].name,
+							f.args[1].name,
+							propsType != null,
+							stateType != null
+						);
+
 						f.expr = macro {
-							${exprComponentDidUpdate(inClass, f.args[0].name, f.args[1].name)}
+							${expr}
 							${f.expr}
 						};
 
@@ -65,9 +87,17 @@ class ReactDebugMacro
 	static function addComponentUpdate(
 		fields:Array<Field>,
 		inClass:ClassType,
-		propsType:ComplexType,
-		stateType:ComplexType
+		propsType:Null<ComplexType>,
+		stateType:Null<ComplexType>
 	) {
+		var expr = exprComponentDidUpdate(
+			inClass,
+			"prevProps",
+			"prevState",
+			propsType != null,
+			stateType != null
+		);
+
 		var componentDidUpdate = {
 			args: [
 				{
@@ -86,7 +116,7 @@ class ReactDebugMacro
 				}
 			],
 			ret: macro :Void,
-			expr: exprComponentDidUpdate(inClass, "prevProps", "prevState")
+			expr: expr
 		}
 
 		fields.push({
@@ -97,13 +127,34 @@ class ReactDebugMacro
 		});
 	}
 
-	static function exprComponentDidUpdate(inClass:ClassType, prevProps:String, prevState:String)
-	{
-		return macro {
-			var propsAreEqual = react.ReactUtil.shallowCompare(this.props, $i{prevProps});
-			var statesAreEqual = react.ReactUtil.shallowCompare(this.state, $i{prevState});
+	static function exprComponentDidUpdate(
+		inClass:ClassType,
+		prevProps:String,
+		prevState:String,
+		hasProps:Bool,
+		hasState:Bool
+	) {
+		if (!hasProps && !hasState) return macro {};
 
-			if (propsAreEqual && statesAreEqual)
+		return macro {
+			${hasProps
+				? macro var propsAreEqual = react.ReactUtil.shallowCompare(this.props, $i{prevProps})
+				: macro {}
+			};
+
+			${hasState
+				? macro var statesAreEqual = react.ReactUtil.shallowCompare(this.state, $i{prevState})
+				: macro {}
+			};
+
+			var cond = ${!hasProps
+				? macro statesAreEqual
+				: !hasState
+					? macro propsAreEqual
+					: macro (propsAreEqual && statesAreEqual)
+			};
+
+			if (cond)
 			{
 				// Using Object.create(null) to avoid prototype for clean output
 				var debugProps = untyped Object.create(null);
