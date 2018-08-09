@@ -21,11 +21,15 @@ typedef ComponentInfo = {
 	props:Array<ObjectField>
 }
 
-private class JsxParser extends tink.hxx.Parser {
-	public function new(source) {
+private class JsxParser extends tink.hxx.Parser
+{
+	public function new(source)
+	{
 		super(source, JsxParser.new, { fragment: 'react.Fragment', defaultExtension: 'html' });
 	}
-	override function tagName() {
+
+	override function tagName()
+	{
 		allow("$");
 		return super.tagName();
 	}
@@ -52,9 +56,9 @@ class ReactMacro
 		if (value.indexOf('&') < 0)
 			return value;
 
-		var reEntity = ~/&[a-z0-9]+;/gi,
-				result = '',
-				index = 0;
+		var reEntity = ~/&[a-z0-9]+;/gi;
+		var result = '';
+		var index = 0;
 
 		while (reEntity.matchSub(value, index))
 		{
@@ -62,7 +66,7 @@ class ReactMacro
 			var entity = reEntity.matched(0);
 			index = result.length + entity.length;
 
-			result += switch HtmlEntities.map[entity] {
+			result += switch (HtmlEntities.map[entity]) {
 				case null:
 					var infos = Context.getPosInfos(pos);
 					infos.max = infos.min + index;
@@ -70,8 +74,7 @@ class ReactMacro
 					Context.makePosition(infos).warning('unknown entity $entity');
 					entity;
 				case e: e;
-			}
-
+			};
 		}
 
 		result += value.substr(index);
@@ -79,8 +82,10 @@ class ReactMacro
 		return result;
 	}
 
-	static public function toFieldExpr(sl:Array<String>, pos:Position = null):Expr {
+	static public function toFieldExpr(sl:Array<String>, pos:Position = null):Expr
+	{
 		if (pos == null) pos = Context.currentPos();
+
 		return Lambda.fold(
 			sl,
 			function(s, e) {
@@ -92,27 +97,34 @@ class ReactMacro
 		);
 	}
 
-	static function children(c:tink.hxx.Children) {
-		var exprs = switch c {
+	static function children(c:tink.hxx.Children)
+	{
+		var exprs = switch (c) {
 			case null | { value: null }: [];
-			default: [for (c in tink.hxx.Generator.normalize(c.value)) child(c)];
-		}
+			default:
+				[for (c in tink.hxx.Generator.normalize(c.value)) child(c)];
+		};
+
 		return {
 			individual: exprs,
-			compound: switch exprs {
+			compound: switch (exprs) {
 				case []: null;
 				case [v]: v;
 				case a: macro @:pos(c.pos) ($a{a}:Array<Dynamic>);
 			}
-		}
+		};
 	}
 
-	static function typeChecker(type:Expr, nodePos:Position, isHtml:Bool) {
-		function propsFor(placeholder:Expr):StringAt->Expr->Void {
+	static function typeChecker(type:Expr, nodePos:Position, isHtml:Bool)
+	{
+		function propsFor(placeholder:Expr):StringAt->Expr->Void
+		{
 			placeholder = Context.storeTypedExpr(Context.typeExpr(placeholder));
+
 			return function (name:StringAt, value:Expr) {
 				var field = name.value;
 				var target = macro @:pos(name.pos) $placeholder.$field;
+
 				Context.typeof(macro @:pos(value.pos) {
 					var __pseudo = $target;
 					__pseudo = $value;
@@ -123,24 +135,36 @@ class ReactMacro
 		var t = type.typeof().sure();
 		try {
 			if (!Context.unify(t, Context.getType('react.ReactNode')))
-				Context.error('JSX error: invalid node "${ExprTools.toString(type)}"', nodePos);
+			{
+				Context.error(
+					'JSX error: invalid node "${ExprTools.toString(type)}"',
+					nodePos
+				);
+			}
 		} catch (e:Dynamic) {
-			Context.error('JSX error: invalid node "${ExprTools.toString(type)}"', nodePos);
+			Context.error(
+				'JSX error: invalid node "${ExprTools.toString(type)}"',
+				nodePos
+			);
 		}
 
-		return
-			if (isHtml) function (_, _) {}
-			else switch t {
+		return isHtml
+			? function(_, _) {}
+			: switch (t) {
 				case TFun(args, _):
+					switch (args) {
+						case []:
+							function (_, e:Expr) e.reject('no props allowed here');
 
-					switch args {
-						case []: function (_, e:Expr) e.reject('no props allowed here');
-						case [v]: propsFor(macro @:pos(type.pos) {
-							var o = null;
-							$type(o);
-							o;
-						});
-						case v: throw 'assert';//TODO: do something meaningful here
+						case [v]:
+							propsFor(macro @:pos(type.pos) {
+								var o = null;
+								$type(o);
+								o;
+							});
+
+						case v:
+							throw 'assert'; //TODO: do something meaningful here
 					}
 
 				case TInst(_.toString() => "String", []):
@@ -148,54 +172,68 @@ class ReactMacro
 
 				default:
 					propsFor(macro @:pos(type.pos) {
-						function get<T>(c:Class<T>):T {
-							return null;
-						}
+						function get<T>(c:Class<T>):T return null;
 						@:privateAccess get($type).props;
 					});
 			}
 	}
 
 	static function child(c:Child)
-		return switch c.value {
+	{
+		return switch (c.value) {
 			case CText(s): macro @:pos(s.pos) $v{replaceEntities(s.value, s.pos)};
 			case CExpr(e): e;
 			case CNode(n):
-				var type =
-					switch n.name.value.split('.') {
-						case [tag] if (tag.charAt(0) == tag.charAt(0).toLowerCase()):
-							macro @:pos(n.name.pos) $v{tag};
-						case parts:
-							macro @:pos(n.name.pos) ${toFieldExpr(parts, n.name.pos)};
-					}
+				var type = switch (n.name.value.split('.')) {
+					case [tag] if (tag.charAt(0) == tag.charAt(0).toLowerCase()):
+						macro @:pos(n.name.pos) $v{tag};
+					case parts:
+						macro @:pos(n.name.pos) ${toFieldExpr(parts, n.name.pos)};
+				};
 
-				var isHtml = type.getString().isSuccess();//TODO: this is a little awkward
+				var isHtml = type.getString().isSuccess(); //TODO: this is a little awkward
 				if (!isHtml) JsxStaticMacro.handleJsxStaticProxy(type);
 
-				var checkProp = typeChecker(type, c.pos, isHtml),
-				    attrs = new Array<ObjectField>(),
-				    spread = [],
-				    key = null,
-				    ref = null,
-				    pos = n.name.pos;
+				var checkProp = typeChecker(type, c.pos, isHtml);
+				var attrs = new Array<ObjectField>();
+				var spread = [];
+				var key = null;
+				var ref = null;
+				var pos = n.name.pos;
 
-				function add(name:StringAt, e:Expr) {
+				function add(name:StringAt, e:Expr)
+				{
 					checkProp(name, e);
 					attrs.push({ field: name.value, expr: e });
 				}
 
-				for (attr in n.attributes) switch attr {
-					case Splat(e): spread.push(e);
-					case Empty(invalid = { value: 'key' | 'ref'}): invalid.pos.error('attribute ${invalid.value} must have a value');
-					case Empty(name): add(name, macro @:pos(name.pos) true);
-					case Regular(name, value):
-						var expr = value.getString().map(function (s) return macro $v{replaceEntities(s, value.pos)}).orUse(value);
-						switch name.value {
-							case 'key': key = expr;
-							case 'ref': ref = expr;
-							default: add(name, value);
-						}
+				for (attr in n.attributes)
+				{
+					switch (attr)
+					{
+						case Splat(e):
+							spread.push(e);
+
+						case Empty(invalid = { value: 'key' | 'ref'}):
+							invalid.pos.error('attribute ${invalid.value} must have a value');
+
+						case Empty(name):
+							add(name, macro @:pos(name.pos) true);
+
+						case Regular(name, value):
+							var expr = value.getString()
+								.map(function (s) return macro $v{replaceEntities(s, value.pos)})
+								.orUse(value);
+
+							switch (name.value)
+							{
+								case 'key': key = expr;
+								case 'ref': ref = expr;
+								default: add(name, value);
+							}
+					}
 				}
+
 				// parse children
 				var children = children(n.children);
 
@@ -210,15 +248,18 @@ class ReactMacro
 					{
 						attrs.push({field:'children', expr: children.compound });
 					}
+
 					if (!isHtml)
 					{
 						var defaultProps = getDefaultProps(typeInfo, attrs);
+
 						if (defaultProps != null)
 						{
 							var obj = {expr: EObjectDecl(defaultProps), pos: pos};
 							spread.unshift(obj);
 						}
 					}
+
 					var props = makeProps(spread, attrs, pos);
 					genLiteral(type, props, ref, key, pos);
 				}
@@ -232,23 +273,32 @@ class ReactMacro
 					var args = [type, props].concat(children.individual);
 					macro @:pos(n.name.pos) react.React.createElement($a{args});
 				}
+
 			case CSplat(_):
 				c.pos.error('jsx does not support child splats');
+
 			case CIf(cond, cons, alt):
 				macro @:pos(cond.pos) if ($cond) ${body(cons)} else ${body(alt)};
+
 			case CFor(head, expr):
 				macro @:pos(head.pos) ([for ($head) ${body(expr)}]:Array<Dynamic>);
+
 			case CSwitch(target, cases):
 				ESwitch(target, [for (c in cases) {
 					guard: c.guard,
 					values: c.values,
 					expr: body(c.children)
 				}], null).at(target.pos);
-			default: c.pos.error('jsx does not support control structures');//already disabled at parser level anyway
+
+			default:
+				c.pos.error('jsx does not support control structures'); //already disabled at parser level anyway
 		}
+	}
 
 	static function body(c:Children)
+	{
 		return macro ($a{children(c).individual}:Array<Dynamic>);
+	}
 
 	static var componentsMap:Map<String, ComponentInfo> = new Map();
 
@@ -262,6 +312,7 @@ class ReactMacro
 			{field: 'type', expr: type},
 			{field: 'props', expr: props}
 		];
+
 		if (key != null) fields.push({field: 'key', expr: key});
 		if (ref != null) fields.push({field: 'ref', expr: ref});
 		var obj = {expr: EObjectDecl(fields), pos: pos};

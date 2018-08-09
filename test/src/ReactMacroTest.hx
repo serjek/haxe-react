@@ -269,7 +269,8 @@ class ReactMacroTest
 	}
 
 	@Test
-	public function entities() {
+	public function entities()
+	{
 		var e:ReactElement = jsx('<div title="a < b">hello &world; &lt;3</div>');
 		assertHasProps(
 			e.props,
