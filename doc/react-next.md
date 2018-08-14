@@ -21,8 +21,8 @@ Other changes introduced by tink_hxx:
 * You cannot pass props not recognized by the target component
 
 Further changes added in `#next`:
-* `6e8fe8d` Allow String variables as jsx node
-* `d173de0` Fix error position when using invalid nodes in jsx
+* [`6e8fe8d`](https://github.com/kLabz/haxe-react/commit/6e8fe8d) Allow String variables as jsx node
+* [`d173de0`](https://github.com/kLabz/haxe-react/commit/d173de0) Fix error position when using invalid nodes in jsx
 
 ## ReactComponentOf cleanup
 
@@ -71,5 +71,5 @@ accepting some specific props.
 
 ## More debug tools
 
-* `98233c3` Add warning if ReactComponent's render has no override
-* `ef0b0f1` React runtime warnings: add check for state initialization
+* [`98233c3`](https://github.com/kLabz/haxe-react/commit/98233c3) Add warning if ReactComponent's render has no override
+* [`ef0b0f1`](https://github.com/kLabz/haxe-react/commit/ef0b0f1) React runtime warnings: add check for state initialization
