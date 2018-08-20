@@ -118,6 +118,8 @@ typedef ReactFragment = EitherType<
 	ReactElement,
 	EitherType<
 		Array<ReactFragment>,
-		EitherType<String, Float>
+		EitherType<String,
+			EitherType<Float, Bool>
+		>
 	>
 >;

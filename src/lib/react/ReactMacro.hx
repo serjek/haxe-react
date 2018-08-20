@@ -182,7 +182,8 @@ class ReactMacro
 	{
 		return switch (c.value) {
 			case CText(s): macro @:pos(s.pos) $v{replaceEntities(s.value, s.pos)};
-			case CExpr(e): e;
+			case CExpr(e):
+				macro @:pos(e.pos) (${e} :react.ReactComponent.ReactFragment);
 			case CNode(n):
 				var type = switch (n.name.value.split('.')) {
 					case [tag] if (tag.charAt(0) == tag.charAt(0).toLowerCase()):
