@@ -119,6 +119,24 @@ abstract ReactNodeOf<TProps>(ReactNode) to ReactNode {
 	{
 		return cast cls;
 	}
+
+	@:from
+	static public function fromFunctionWithoutProps<TProps>(f:Void->ReactFragment):ReactNodeOf<TProps>
+	{
+		return cast f;
+	}
+
+	@:from
+	static public function fromCompWithoutProps<TProps, TState>(cls:Class<ReactComponentOf<react.Empty, TState>>):ReactNodeOf<TProps>
+	{
+		return cast cls;
+	}
+
+	@:from
+	static public function fromFragment<TProps>(f:ReactFragment):ReactNodeOf<TProps>
+	{
+		return cast f;
+	}
 	#end
 
 	@:from
