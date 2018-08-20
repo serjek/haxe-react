@@ -23,6 +23,7 @@ Other changes introduced by tink_hxx:
 Further changes added in `#next`:
 * [`6e8fe8d`](https://github.com/kLabz/haxe-react/commit/6e8fe8d) Allow String variables as jsx node
 * [`d173de0`](https://github.com/kLabz/haxe-react/commit/d173de0) Fix error position when using invalid nodes in jsx
+* [`578c55d`](https://github.com/kLabz/haxe-react/commit/578c55d) Disallow invalid values inside jsx when a fragment is expected
 
 ## ReactComponentOf cleanup
 
@@ -55,6 +56,7 @@ them to use other types allowed by react.
 * `ReactElement`
 * `String`
 * `Float` (and `Int`)
+* `Bool`
 * `Array<ReactFragment>`
 
 ## `ReactNode` and `ReactNodeOf`
