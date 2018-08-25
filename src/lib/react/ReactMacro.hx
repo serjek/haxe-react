@@ -115,9 +115,9 @@ class ReactMacro
 		};
 	}
 
-	static function typeChecker(type:Expr, nodePos:Position, isHtml:Bool)
+	static function typeChecker(type:Expr, nodePos:Position, isHtml:Bool):StringAt->Expr->Expr
 	{
-		function propsFor(placeholder:Expr):StringAt->Expr->Void
+		function propsFor(placeholder:Expr):StringAt->Expr->Expr
 		{
 			placeholder = Context.storeTypedExpr(Context.typeExpr(placeholder));
 
@@ -125,10 +125,14 @@ class ReactMacro
 				var field = name.value;
 				var target = macro @:pos(name.pos) $placeholder.$field;
 
-				Context.typeof(macro @:pos(value.pos) {
+				var t = Context.typeof(macro @:pos(value.pos) {
 					var __pseudo = $target;
 					__pseudo = $value;
 				});
+
+				var ct = haxe.macro.TypeTools.toComplexType(t);
+				if (ct == null) return value;
+				return macro @:pos(value.pos) ($value :$ct);
 			}
 		}
 
@@ -149,12 +153,15 @@ class ReactMacro
 		}
 
 		return isHtml
-			? function(_, _) {}
+			? function(_, e:Expr) return e
 			: switch (t) {
 				case TFun(args, _):
 					switch (args) {
 						case []:
-							function (_, e:Expr) e.reject('no props allowed here');
+							function (_, e:Expr) {
+								e.reject('no props allowed here');
+								return e;
+							}
 
 						case [v]:
 							propsFor(macro @:pos(type.pos) {
@@ -168,7 +175,7 @@ class ReactMacro
 					}
 
 				case TInst(_.toString() => "String", []):
-					function(_, _) {};
+					function(_, e:Expr) return e;
 
 				default:
 					propsFor(macro @:pos(type.pos) {
@@ -204,8 +211,10 @@ class ReactMacro
 
 				function add(name:StringAt, e:Expr)
 				{
-					checkProp(name, e);
-					attrs.push({ field: name.value, expr: e });
+					attrs.push({
+						field: name.value,
+						expr: checkProp(name, e)
+					});
 				}
 
 				for (attr in n.attributes)
