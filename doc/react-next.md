@@ -25,6 +25,7 @@ Further changes added in `#next`:
 * [`d173de0`](https://github.com/kLabz/haxe-react/commit/d173de0) Fix error position when using invalid nodes in jsx
 * [`578c55d`](https://github.com/kLabz/haxe-react/commit/578c55d) Disallow invalid values inside jsx when a fragment is expected
 * [`425cb6c`](https://github.com/kLabz/haxe-react/commit/425cb6c) Ensure individual prop typing, allowing abstract props to do their magic
+* [`150b76d`](https://github.com/kLabz/haxe-react/commit/150b76d) Jsx: display compilation warning on missing props
 
 ## ReactComponentOf cleanup
 
