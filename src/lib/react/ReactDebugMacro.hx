@@ -117,15 +117,16 @@ class ReactDebugMacro
 			if (state == null) {
 				js.Browser.console.error(
 					'Warning: component ${inClass.name} is stateful but its '
-					+ '`state` is not initialized inside its constructor. '
+					+ '`state` is not initialized inside its constructor.\n\n'
 
 					+ 'Either add a `state = { ... }` statement to its constructor '
 					+ 'or define this component as a `ReactComponentOfProps` '
-					+ 'if it is only using `props`. '
+					+ 'if it is only using `props`.\n\n'
 
 					+ 'If it is using neither `props` nor `state`, you might '
-					+ 'consider using `@:jsxStatic` to avoid unneeded lifecycle.'
-					// TODO: link to @:jsxStatic documentation when available
+					+ 'consider using `@:jsxStatic` to avoid unneeded lifecycle. '
+					+ 'See https://github.com/kLabz/haxe-react/blob/next/doc/static-components.md '
+					+ 'for more information on static components.'
 				);
 			}
 		};
