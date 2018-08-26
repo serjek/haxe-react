@@ -262,7 +262,7 @@ class ReactMacroTest
 	@Test
 	public function DOM_with_single_child_binding_should_NOT_be_array()
 	{
-		var o = { name:'o' };
+		var o = "{ name:'o' }";
 		var e:ReactElement = jsx('<div>${o}</div>');
 		Assert.areEqual('div', e.type);
 		Assert.areEqual(e.props.children, o);
