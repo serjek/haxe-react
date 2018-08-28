@@ -68,10 +68,40 @@ Or, for objects: `jsx('<div>${{test: 42}}</div>');` resulted in:
 	keys {test}). If you meant to render a collection of children,
 	use an array instead.
 
-Now we get a compilation error (see below for `react.ReactFragment`):
+Now we get a compilation error (see below for `ReactFragment`):
 
 	src/Index.hx:31: characters 7-17 : { test : Int } should be react.ReactFragment
 	src/Index.hx:31: characters 7-17 : For function argument 'children'
+
+#### [`d06bc25`](https://github.com/kLabz/haxe-react/commit/d06bc25) ... unless in a component allowing another type for its `children` prop
+
+Components can handle their `children` prop any way they want, and so this prop
+may be of any type unless it is actually used as a react node.
+
+This commit does two things:
+* Partially revert above commit `578c55d` for allowing other values
+* Unifies components' children with their `children` prop if any, or with
+`ReactFragment` if none is defined
+
+This allows things like that:
+
+```haxe
+jsx('<$MyComponent>${() -> 42}</$MyComponent>');
+
+// ...
+
+typedef Props = {
+	var children:Void->Int;
+}
+
+class MyComponent extends ReactComponentOfProps<Props> {
+	override public function render() {
+		return jsx('<p>The answer is ${props.children()}</p>');
+	}
+}
+```
+
+While still disallowing above examples.
 
 #### [`425cb6c`](https://github.com/kLabz/haxe-react/commit/425cb6c) Ensure individual prop typing, allowing abstract props to do their magic
 
@@ -118,21 +148,30 @@ them to use other types allowed by react.
 
 #### `ReactFragment` unifies with either
 
-* `ReactElement`
-* `String`
-* `Float` (and `Int`)
-* `Bool`
+* `ReactSingleFragment`
 * `Array<ReactFragment>`
 
+#### `ReactSingleFragment` being either
+
+* `ReactElement`
+* `String`
+* `Float` (or `Int`)
+* `Bool`
+
+This type can be used when you expect a single element and not a collection of
+elements.
+
 #### APIs now using ReactFragment
+
+Note: this should be updated with `ReactSingleFragment` when applicable. (TODO)
 
 * `React.createElement()` returns a ReactFragment
 * `ReactChildren.map()` callback is now `ReactFragment -> ReactFragment`
 * `ReactChildren.foreach()` callback is now `ReactFragment -> Void`
 * `ReactComponent's render()` returns a ReactFragment
-* `ReactDOM.render()` uses ReactFragment for first argument and return type
-* `ReactDOM.hydrate()` uses ReactFragment for first argument and return type
-* `ReactDOM.createPortal()` uses ReactFragment for first argument and return type
+* `ReactDOM.render()` uses ReactFragment for its first argument and return type
+* `ReactDOM.hydrate()` uses ReactFragment for its first argument and return type
+* `ReactDOM.createPortal()` uses ReactFragment for its first argument and return type
 
 ## `ReactNode` and `ReactNodeOf`
 
