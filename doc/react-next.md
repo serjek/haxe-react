@@ -7,14 +7,17 @@ This version of haxe-react can be considered unstable (even though it is
 currently being used in production) due to these huge changes it can go through.
 You may want to lock your dependencies to the latest commit of the branch
 instead of the branch itself, if you are not willing to update your code every
-now and then. I am available in
-[haxe-react gitter](https://gitter.im/haxe-react/Lobby) if you need help.
+now and then. I am available in [haxe-react gitter][gitter] if you need help.
+
+Haxe 4 ([preview 4](https://haxe.org/download/version/4.0.0-preview.4/) atm) is
+used as the main target version in this fork, but Haxe 3.4.7 should still be
+supported.
+
 
 ## Different jsx parser
 
-Based off [back2dos](https://github.com/back2dos)'s
-[PR #95](https://github.com/massiveinteractive/haxe-react/pull/95),
-[`tink_hxx`](https://github.com/haxetink/tink_hxx) is used to handle jsx.
+Based off [back2dos](https://github.com/back2dos)'s [PR #95][PR #95], this
+branch uses [`tink_hxx`][tink_hxx] to handle jsx.
 
 ### Syntax changes
 
@@ -31,7 +34,7 @@ Other changes introduced by tink_hxx:
 
 ### Further changes added in `#next`
 
-#### [`6e8fe8d`](https://github.com/kLabz/haxe-react/commit/6e8fe8d) Allow String variables as jsx node
+#### [`6e8fe8d`][6e8fe8d] Allow String variables as jsx node
 
 The new parser will resolve `String` variables for node names:
 
@@ -42,7 +45,7 @@ return jsx('<$Node>${props.children}</$Node>');
 
 **Warning**: it only works for variable names starting with an uppercase letter.
 
-#### [`d173de0`](https://github.com/kLabz/haxe-react/commit/d173de0) Fix error position when using invalid nodes in jsx
+#### [`d173de0`][d173de0] Fix error position when using invalid nodes in jsx
 
 Using an invalid node inside jsx, such as `<$UnknownComponent />`, resulted in
 an error inside `haxe.macro.MacroStringTools`.
@@ -50,7 +53,7 @@ an error inside `haxe.macro.MacroStringTools`.
 This fix ensures that the position points to "UnknownComponent" inside the jsx
 string.
 
-#### [`578c55d`](https://github.com/kLabz/haxe-react/commit/578c55d) Disallow invalid values inside jsx when a fragment is expected
+#### [`578c55d`][578c55d] Disallow invalid values inside jsx when a fragment is expected
 
 For example, the following used to compile:
 
@@ -73,7 +76,7 @@ Now we get a compilation error (see below for `ReactFragment`):
 	src/Index.hx:31: characters 7-17 : { test : Int } should be react.ReactFragment
 	src/Index.hx:31: characters 7-17 : For function argument 'children'
 
-#### [`d06bc25`](https://github.com/kLabz/haxe-react/commit/d06bc25) ... unless in a component allowing another type for its `children` prop
+#### [`d06bc25`][d06bc25] ... unless in a component allowing another type for its `children` prop
 
 Components can handle their `children` prop any way they want, and so this prop
 may be of any type unless it is actually used as a react node.
@@ -103,14 +106,14 @@ class MyComponent extends ReactComponentOfProps<Props> {
 
 While still disallowing above examples.
 
-#### [`425cb6c`](https://github.com/kLabz/haxe-react/commit/425cb6c) Ensure individual prop typing, allowing abstract props to do their magic
+#### [`425cb6c`][425cb6c] Ensure individual prop typing, allowing abstract props to do their magic
 
 Makes sure each prop resolves to its type, with a `(prop :TypeOfProp)`.
 
 This will trigger abstracts `@:from` / `@:to` which may be needed in some cases
 to do their magic.
 
-#### [`150b76d`](https://github.com/kLabz/haxe-react/commit/150b76d) + [`d2e8dd3`](https://github.com/kLabz/haxe-react/commit/d2e8dd3) Jsx: display compilation warning on missing props
+#### [`150b76d`][150b76d] + [`d2e8dd3`][d2e8dd3] Jsx: display compilation warning on missing props
 
 Tries to extract the list of needed props and adds a compilation warning when
 some of them are not passed in a jsx "call".
@@ -122,9 +125,8 @@ passed through the spread).
 
 ## ReactComponentOf cleanup
 
-Cherry-picked and improved
-[PR #108](https://github.com/massiveinteractive/haxe-react/pull/108), which
-removed the legacy `TRefs` from `ReactComponent`.
+Cherry-picked and improved [PR #108][PR #108], which removed the legacy `TRefs`
+from `ReactComponent`.
 
 #### So now we have
 * `ReactComponentOf<TProps, TState>` (or `ReactComponentOfPropsAndState<TProps, TState>`)
@@ -190,7 +192,7 @@ but still available as a proxy to `ReactNode`.
 
 ## More debug tools
 
-#### [`98233c3`](https://github.com/kLabz/haxe-react/commit/98233c3) Add warning if ReactComponent's render has no override
+#### [`98233c3`][98233c3] Add warning if ReactComponent's render has no override
 
 Adds a compile-time check for an override of the `render` function in your
 components. This helps catching following runtime warning sooner:
@@ -203,7 +205,7 @@ visible for a few specific application state.
 
 You can disable this with the `-D react_ignore_empty_render` compilation flag.
 
-#### [`ef0b0f1`](https://github.com/kLabz/haxe-react/commit/ef0b0f1) React runtime warnings: add check for state initialization
+#### [`ef0b0f1`][ef0b0f1] React runtime warnings: add check for state initialization
 
 React runtime warnings, disabled by default, can be enabled with the
 `-D react_runtime_warnings` compilation flag (only when `-debug` is enabled).
@@ -212,7 +214,7 @@ They were previously enabled with `-D react_render_warning`, and only added the
 warning about avoidable re-renders. Note that this warning can have false
 positive due to the legacy context API (react-router for example). You can
 disable it for a specific component by adding `@:ignoreReRender` meta to this
-component ([`a7860c6`](https://github.com/kLabz/haxe-react/commit/a7860c6)).
+component ([`a7860c6`][a7860c6]).
 
 A new warning has been added: if a component having a state does not have a
 constructor or has one but doesn't initialize its state in it, you will get a
@@ -220,5 +222,48 @@ compilation error warning you about it (instead of a runtime react error).
 
 These warnings are now more accurate since the strict props/state types have
 been added to `ReactComponentOf` typedefs. Compatibility has been handled
-mainly in [`1719431`](https://github.com/kLabz/haxe-react/commit/1719431) and
-[`241a13b`](https://github.com/kLabz/haxe-react/commit/241a13b).
+mainly in [`1719431`][1719431] and [`241a13b`][241a13b].
+
+#### [`TODO`]() Generate PropTypes for more runtime checks on props
+
+There are already many checks at compile time to ensure you are not doing
+obvious mistakes. However, sometimes the compiler cannot see what is really
+happening, and only a runtime check can really tell you what went wrong.
+
+[`prop-types`][prop-types] can check a number of things at runtime, roughly
+like the haxe compiler would do at compile time. But writing both `TProps` and
+`propTypes` for your components would be too much.
+
+This feature, enabled when you compile with both `-debug` and the compilation
+flag `-D react_generate_proptypes`, will generate propTypes for your components,
+using their `TProps` as a reference.
+
+This does not overwrite manually written propTypes, and ignores completely
+extern classes (most react libraries will provide propTypes anyway, probably
+more accurate than these).
+
+
+<!-- Haxe React community -->
+[gitter]: https://gitter.im/haxe-react/Lobby
+[PR #95]: https://github.com/massiveinteractive/haxe-react/pull/95
+[PR #108]: https://github.com/massiveinteractive/haxe-react/pull/108
+
+<!-- Haxelib / GitHub projects -->
+[tink_hxx]: https://github.com/haxetink/tink_hxx
+[prop-types]: https://github.com/facebook/prop-types
+
+<!-- Commits improving jsx -->
+[6e8fe8d]: https://github.com/kLabz/haxe-react/commit/6e8fe8d
+[d173de0]: https://github.com/kLabz/haxe-react/commit/d173de0
+[578c55d]: https://github.com/kLabz/haxe-react/commit/578c55d
+[d06bc25]: https://github.com/kLabz/haxe-react/commit/d06bc25
+[425cb6c]: https://github.com/kLabz/haxe-react/commit/425cb6c
+[150b76d]: https://github.com/kLabz/haxe-react/commit/150b76d
+[d2e8dd3]: https://github.com/kLabz/haxe-react/commit/d2e8dd3
+
+<!-- Commits improving debug tools -->
+[98233c3]: https://github.com/kLabz/haxe-react/commit/98233c3
+[ef0b0f1]: https://github.com/kLabz/haxe-react/commit/ef0b0f1
+[a7860c6]: https://github.com/kLabz/haxe-react/commit/a7860c6
+[1719431]: https://github.com/kLabz/haxe-react/commit/1719431
+[241a13b]: https://github.com/kLabz/haxe-react/commit/241a13b
