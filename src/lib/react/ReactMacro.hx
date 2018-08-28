@@ -6,6 +6,7 @@ import tink.hxx.Parser;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
+import haxe.macro.TypeTools;
 import haxe.ds.Option;
 import tink.hxx.Node;
 import tink.hxx.StringAt;
@@ -97,20 +98,20 @@ class ReactMacro
 		);
 	}
 
-	static function children(c:tink.hxx.Children)
+	static function children(c:tink.hxx.Children, type:ComplexType)
 	{
 		var exprs = switch (c) {
 			case null | { value: null }: [];
 			default:
-				[for (c in tink.hxx.Generator.normalize(c.value)) child(c)];
+				[for (c in tink.hxx.Generator.normalize(c.value)) macro @:pos(c.pos) (${child(c)} :$type)];
 		};
 
 		return {
 			individual: exprs,
 			compound: switch (exprs) {
 				case []: null;
-				case [v]: v;
-				case a: macro @:pos(c.pos) ($a{a}:Array<Dynamic>);
+				case [v]: macro @:pos(c.pos) (${v}:$type);
+				case a: macro @:pos(c.pos) ($a{a}:$type);
 			}
 		};
 	}
@@ -130,7 +131,7 @@ class ReactMacro
 					__pseudo = $value;
 				});
 
-				var ct = haxe.macro.TypeTools.toComplexType(t);
+				var ct = TypeTools.toComplexType(t);
 				if (ct == null) return value;
 				return macro @:pos(value.pos) ($value :$ct);
 			}
@@ -185,6 +186,38 @@ class ReactMacro
 			}
 	}
 
+	static function extractChildrenType(type:Expr):ComplexType
+	{
+		try {
+			switch (Context.typeof(type)) {
+				case TType(_, _):
+					var tprops = Context.storeTypedExpr(Context.typeExpr(macro @:pos(type.pos) {
+						function get<T>(c:Class<T>):T return null;
+						@:privateAccess get($type).props;
+					}));
+
+					switch (Context.typeof(tprops)) {
+						case TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _):
+							for (f in fields)
+								if (f.name == 'children')
+									return TypeTools.toComplexType(f.type);
+
+						default:
+					}
+
+				case TFun([{t: TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _)}], _):
+					for (f in fields)
+						if (f.name == 'children')
+							return TypeTools.toComplexType(f.type);
+
+				default:
+			}
+
+		} catch (e:Dynamic) {}
+
+		return macro :react.ReactComponent.ReactFragment;
+	}
+
 	static function extractNeededAttrs(type:Expr)
 	{
 		var neededAttrs = [];
@@ -223,8 +256,7 @@ class ReactMacro
 	{
 		return switch (c.value) {
 			case CText(s): macro @:pos(s.pos) $v{replaceEntities(s.value, s.pos)};
-			case CExpr(e):
-				macro @:pos(e.pos) (${e} :react.ReactComponent.ReactFragment);
+			case CExpr(e): e;
 			case CNode(n):
 				var type = switch (n.name.value.split('.')) {
 					case [tag] if (tag.charAt(0) == tag.charAt(0).toLowerCase()):
@@ -243,6 +275,7 @@ class ReactMacro
 				var ref = null;
 				var pos = n.name.pos;
 				var neededAttrs = extractNeededAttrs(type);
+				var childrenType = extractChildrenType(type);
 
 				function add(name:StringAt, e:Expr)
 				{
@@ -284,7 +317,7 @@ class ReactMacro
 				}
 
 				// parse children
-				var children = children(n.children);
+				var children = children(n.children, childrenType);
 				if (children.compound != null) neededAttrs.remove('children');
 
 				for (attr in neededAttrs)
@@ -353,7 +386,7 @@ class ReactMacro
 
 	static function body(c:Children)
 	{
-		return macro ($a{children(c).individual}:Array<Dynamic>);
+		return macro $a{children(c, macro :Dynamic).individual};
 	}
 
 	static var componentsMap:Map<String, ComponentInfo> = new Map();
