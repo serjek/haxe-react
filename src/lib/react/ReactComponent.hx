@@ -110,12 +110,12 @@ typedef ReactElement = {
 	?ref:Dynamic
 }
 
-typedef ReactFragment = EitherType<
+typedef ReactSingleFragment = EitherType<
 	ReactElement,
-	EitherType<
-		Array<ReactFragment>,
-		EitherType<String,
-			EitherType<Float, Bool>
-		>
-	>
+	EitherType<String, EitherType<Float, Bool>>
+>;
+
+typedef ReactFragment = EitherType<
+	ReactSingleFragment,
+	Array<ReactFragment>
 >;
