@@ -2,6 +2,7 @@ package react;
 
 import react.ReactComponent.ReactElement;
 import react.ReactComponent.ReactFragment;
+import react.ReactComponent.ReactSingleFragment;
 
 /**
 	https://facebook.github.io/react/docs/react-api.html
@@ -15,17 +16,17 @@ extern class React
 	// Warning: react.React.PropTypes is deprecated, reference as react.ReactPropTypes
 
 	/**
-		https://facebook.github.io/react/docs/react-api.html#createelement
+		https://reactjs.org/docs/react-api.html#createelement
 	**/
 	public static function createElement(type:CreateElementType, ?attrs:Dynamic, children:haxe.extern.Rest<Dynamic>):ReactFragment;
 
 	/**
-		https://facebook.github.io/react/docs/react-api.html#cloneelement
+		https://reactjs.org/docs/react-api.html#cloneelement
 	**/
 	public static function cloneElement(element:ReactElement, ?attrs:Dynamic, children:haxe.extern.Rest<Dynamic>):ReactElement;
 
 	/**
-		https://facebook.github.io/react/docs/react-api.html#isvalidelement
+		https://reactjs.org/docs/react-api.html#isvalidelement
 	**/
 	public static function isValidElement(object:Dynamic):Bool;
 
@@ -49,7 +50,7 @@ extern class React
 	public static function forwardRef<TProps, TRef>(render:TProps->ReactRef<TRef>->ReactElement):CreateElementType;
 
 	/**
-		https://facebook.github.io/react/docs/react-api.html#react.children
+		https://reactjs.org/docs/react-api.html#reactchildren
 	**/
 	public static var Children:ReactChildren;
 
@@ -57,34 +58,34 @@ extern class React
 }
 
 /**
-	https://facebook.github.io/react/docs/react-api.html#react.children
+	https://reactjs.org/docs/react-api.html#reactchildren
 **/
 extern interface ReactChildren
 {
 	/**
-		https://facebook.github.io/react/docs/react-api.html#react.children.map
+		https://reactjs.org/docs/react-api.html#reactchildrenmap
 	**/
-	function map(children:Dynamic, fn:ReactFragment->ReactFragment):Dynamic;
+	function map(children:Dynamic, fn:ReactFragment->ReactFragment):Null<Array<ReactFragment>>;
 
 	/**
-		https://facebook.github.io/react/docs/react-api.html#react.children.foreach
+		https://reactjs.org/docs/react-api.html#reactchildrenforeach
 	**/
 	function foreach(children:Dynamic, fn:ReactFragment->Void):Void;
 
 	/**
-		https://facebook.github.io/react/docs/react-api.html#react.children.count
+		https://reactjs.org/docs/react-api.html#reactchildrencount
 	**/
-	function count(children:Dynamic):Int;
+	function count(children:ReactFragment):Int;
 
 	/**
-		https://facebook.github.io/react/docs/react-api.html#react.children.only
+		https://reactjs.org/docs/react-api.html#reactchildrenonly
 	**/
-	function only(children:Dynamic):ReactElement;
+	function only(children:ReactFragment):ReactSingleFragment;
 
 	/**
-		https://facebook.github.io/react/docs/react-api.html#react.children.toarray
+		https://reactjs.org/docs/react-api.html#reactchildrentoarray
 	**/
-	function toArray(children:Dynamic):Array<Dynamic>;
+	function toArray(children:ReactFragment):Array<ReactFragment>;
 }
 
 @:deprecated
