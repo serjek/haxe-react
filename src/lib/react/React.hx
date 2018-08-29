@@ -1,5 +1,6 @@
 package react;
 
+import js.Symbol;
 import react.ReactComponent.ReactElement;
 import react.ReactComponent.ReactFragment;
 import react.ReactComponent.ReactSingleFragment;
@@ -55,6 +56,14 @@ extern class React
 	public static var Children:ReactChildren;
 
 	public static var version:String;
+
+	public static var Fragment:Symbol;
+	public static var StrictMode:Symbol;
+	public static var unstable_AsyncMode:Symbol;
+	public static var unstable_Profiler:Symbol;
+
+	@:native('__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED')
+	public static var _internals:ReactSharedInternals;
 }
 
 /**

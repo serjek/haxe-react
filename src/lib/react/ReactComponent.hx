@@ -103,11 +103,23 @@ extern class ReactComponentOf<TProps, TState>
 	#end
 }
 
+typedef ReactSource = {
+	fileName:String,
+	lineNumber:Int
+}
+
 typedef ReactElement = {
 	type:Dynamic,
 	props:Dynamic,
 	?key:Dynamic,
-	?ref:Dynamic
+	?ref:Dynamic,
+	?_owner:Dynamic,
+
+	#if debug
+	?_store:{validated:Bool},
+	?_shadowChildren:Dynamic,
+	?_source:ReactSource,
+	#end
 }
 
 typedef ReactSingleFragment = EitherType<
