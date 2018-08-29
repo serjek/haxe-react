@@ -165,15 +165,28 @@ elements.
 
 #### APIs now using ReactFragment
 
-Note: this should be updated with `ReactSingleFragment` when applicable. (TODO)
+`react.React`:
+```haxe
+public static function createElement(type:CreateElementType, ?attrs:Dynamic, children:haxe.extern.Rest<Dynamic>):ReactFragment;
+public static function isValidElement(object:ReactFragment):Bool;
+public static function forwardRef<TProps, TRef>(render:TProps->ReactRef<TRef>->ReactFragment):ReactNode;
+```
 
-* `React.createElement()` returns a ReactFragment
-* `ReactChildren.map()` callback is now `ReactFragment -> ReactFragment`
-* `ReactChildren.foreach()` callback is now `ReactFragment -> Void`
-* `ReactComponent's render()` returns a ReactFragment
-* `ReactDOM.render()` uses ReactFragment for its first argument and return type
-* `ReactDOM.hydrate()` uses ReactFragment for its first argument and return type
-* `ReactDOM.createPortal()` uses ReactFragment for its first argument and return type
+`react.React.Children`:
+```haxe
+function map(children:Dynamic, fn:ReactFragment->ReactFragment):Null<Array<ReactFragment>>;
+function foreach(children:Dynamic, fn:ReactFragment->Void):Void;
+function count(children:ReactFragment):Int;
+function only(children:ReactFragment):ReactSingleFragment;
+function toArray(children:ReactFragment):Array<ReactFragment>;
+```
+
+`react.ReactDOM`:
+```haxe
+public static function render(element:ReactFragment, container:Element, ?callback:Void -> Void):ReactFragment;
+public static function hydrate(element:ReactFragment, container:Element, ?callback:Void -> Void):ReactFragment;
+public static function createPortal(child:ReactFragment, container:Element):ReactFragment;
+```
 
 ## `ReactNode` and `ReactNodeOf`
 

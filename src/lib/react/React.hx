@@ -19,7 +19,7 @@ extern class React
 	/**
 		https://reactjs.org/docs/react-api.html#createelement
 	**/
-	public static function createElement(type:CreateElementType, ?attrs:Dynamic, children:haxe.extern.Rest<Dynamic>):ReactFragment;
+	public static function createElement(type:ReactNode, ?attrs:Dynamic, children:haxe.extern.Rest<Dynamic>):ReactFragment;
 
 	/**
 		https://reactjs.org/docs/react-api.html#cloneelement
@@ -29,7 +29,7 @@ extern class React
 	/**
 		https://reactjs.org/docs/react-api.html#isvalidelement
 	**/
-	public static function isValidElement(object:Dynamic):Bool;
+	public static function isValidElement(object:ReactFragment):Bool;
 
 	/**
 		https://reactjs.org/docs/react-api.html#reactcreateref
@@ -48,7 +48,7 @@ extern class React
 		If you are using an earlier release of React, use callback refs instead
 		https://reactjs.org/docs/refs-and-the-dom.html#callback-refs
 	**/
-	public static function forwardRef<TProps, TRef>(render:TProps->ReactRef<TRef>->ReactElement):CreateElementType;
+	public static function forwardRef<TProps, TRef>(render:TProps->ReactRef<TRef>->ReactFragment):ReactNode;
 
 	/**
 		https://reactjs.org/docs/react-api.html#reactchildren
