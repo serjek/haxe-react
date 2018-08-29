@@ -237,6 +237,11 @@ These warnings are now more accurate since the strict props/state types have
 been added to `ReactComponentOf` typedefs. Compatibility has been handled
 mainly in [`1719431`][1719431] and [`241a13b`][241a13b].
 
+#### [`b3286e1`][b3286e1] Added access and types for React Internals
+
+Access react shared internals via `react.React._internals` during renders to
+get debug data (stack, timings, etc.). See `react.ReactSharedInternals`.
+
 #### [`TODO`]() Generate PropTypes for more runtime checks on props
 
 There are already many checks at compile time to ensure you are not doing
@@ -280,3 +285,4 @@ more accurate than these).
 [a7860c6]: https://github.com/kLabz/haxe-react/commit/a7860c6
 [1719431]: https://github.com/kLabz/haxe-react/commit/1719431
 [241a13b]: https://github.com/kLabz/haxe-react/commit/241a13b
+[b3286e1]: https://github.com/kLabz/haxe-react/commit/b3286e1
