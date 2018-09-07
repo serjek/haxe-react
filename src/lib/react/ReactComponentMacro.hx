@@ -14,12 +14,11 @@ class ReactComponentMacro {
 		react.jsx.JsxStaticMacro.disallowInReactComponent,
 		react.wrap.ReactWrapperMacro.buildComponent,
 
-		#if (debug && !react_ignore_empty_render)
+		#if !react_ignore_empty_render
 		react.ReactTypeMacro.ensureRenderOverride,
 		#end
 
-		// Note: react_render_warning should be deprecated
-		#if (debug && (react_render_warning || react_runtime_warnings))
+		#if (debug && react_runtime_warnings)
 		react.ReactDebugMacro.buildComponent,
 		#end
 	];

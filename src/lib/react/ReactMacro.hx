@@ -553,7 +553,7 @@ class ReactMacro
 	static function tagComponent(fields:Array<Field>, inClass:ClassType, pos:Position)
 	{
 		#if !debug
-		return
+		return;
 		#end
 
 		addDisplayName(fields, inClass, pos);
