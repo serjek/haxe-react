@@ -33,9 +33,11 @@ class ReactDebugMacro
 			default:
 		}
 
+		#if !react_runtime_warnings_ignore_rerender
 		if (!inClass.meta.has(IGNORE_RENDER_WARNING_META))
 			if (!updateComponentUpdate(fields, inClass, propsType, stateType))
 				addComponentUpdate(fields, inClass, propsType, stateType);
+		#end
 
 		if (hasState && !updateConstructor(fields, inClass, propsType, stateType))
 			addConstructor(fields, inClass, propsType, stateType);
