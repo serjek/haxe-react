@@ -142,6 +142,13 @@ This is actually a big change, since `ReactComponentOfProps` and
 `react.Empty` is an empty typedef, disabling state access/update on
 `ReactComponentOfProps`, and props access in `ReactComponentOfState`.
 
+#### Type constraints on `TProps` and `TState`
+
+React does not support non-objects (and also does not support arrays) as props
+or state for your components. Type parameters constraints have been added to
+ensure at compile time that you don't use unsupported types for `TProps` and/or
+`TState`.
+
 ## `ReactFragment`
 
 `ReactFragment` (in `react.ReactComponent` module) tries to be closer to react
@@ -203,6 +210,24 @@ accepting some specific props.
 `CreateElementType`, still in the `react.React` module, is now **deprecated**
 but still available as a proxy to `ReactNode`.
 
+## Better integrated features
+
+### `@:jsxStatic` components
+
+`@:jsxStatic` has been better integrated with `ReactNode`, making it usable
+outside jsx like any other component.
+
+See [Static components](./static-components.md).
+
+### `@:wrap` to wrap components in HOC
+
+`@:wrap` has been improved to support strict typing in jsx, and since it is
+using `@:jsxStatic` under the hood it also benefits from the fixed usage outside
+jsx via `ReactNode` abstract.
+
+See [Wrapping your components in HOCs](./wrapping-with-hoc.md) for more
+information about wrapping components in HOC.
+
 ## More debug tools
 
 #### [`98233c3`][98233c3] Add warning if ReactComponent's render has no override
@@ -231,16 +256,23 @@ component ([`a7860c6`][a7860c6]).
 
 A new warning has been added: if a component having a state does not have a
 constructor or has one but doesn't initialize its state in it, you will get a
-compilation error warning you about it (instead of a runtime react error).
+runtime error warning you about it (instead of an unclear error later when
+accessing `state`).
 
 These warnings are now more accurate since the strict props/state types have
 been added to `ReactComponentOf` typedefs. Compatibility has been handled
 mainly in [`1719431`][1719431] and [`241a13b`][241a13b].
 
-#### [`b3286e1`][b3286e1] Added access and types for React Internals
+#### [`b3286e1`][b3286e1] Added access and types for React Shared Internals
 
 Access react shared internals via `react.React._internals` during renders to
-get debug data (stack, timings, etc.). See `react.ReactSharedInternals`.
+get debug data (stack, timings, etc.). See `react.ReactSharedInternals`. Note:
+this has been based on current react version (16.4.2), and may not be fully
+compatible with other versions.
+
+[WIP] Random examples of what is available there:
+* `React._internals.ReactDebugCurrentFrame.getCurrentStack()` will list all
+parent nodes of current element, up to the root node of the application
 
 #### [`TODO`]() Generate PropTypes for more runtime checks on props
 
