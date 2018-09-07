@@ -115,7 +115,9 @@ abstract ReactNodeOf<TProps>(ReactNode) to ReactNode {
 	}
 
 	@:from
-	static public function fromComp<TProps, T:TProps, TState>(cls:Class<ReactComponentOf<T, TState>>):ReactNodeOf<TProps>
+	static public function fromComp<TProps, T:TProps, TState:{}>(
+		cls:Class<ReactComponentOf<T, TState>>
+	):ReactNodeOf<TProps>
 	{
 		return cast (cls:ReactNode);
 	}
@@ -127,7 +129,9 @@ abstract ReactNodeOf<TProps>(ReactNode) to ReactNode {
 	}
 
 	@:from
-	static public function fromCompWithoutProps<TProps, TState>(cls:Class<ReactComponentOf<react.Empty, TState>>):ReactNodeOf<TProps>
+	static public function fromCompWithoutProps<TProps:{}, TState:{}>(
+		cls:Class<ReactComponentOf<react.Empty, TState>>
+	):ReactNodeOf<TProps>
 	{
 		return cast (cls:ReactNode);
 	}

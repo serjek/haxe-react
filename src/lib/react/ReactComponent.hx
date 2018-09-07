@@ -14,11 +14,11 @@ typedef ReactComponentProps = {
 **/
 typedef ReactComponent = ReactComponentOf<Dynamic, Dynamic>;
 
-typedef ReactComponentOfProps<TProps> = ReactComponentOf<TProps, Empty>;
-typedef ReactComponentOfState<TState> = ReactComponentOf<Empty, TState>;
+typedef ReactComponentOfProps<TProps:{}> = ReactComponentOf<TProps, Empty>;
+typedef ReactComponentOfState<TState:{}> = ReactComponentOf<Empty, TState>;
 
 // Keep the old ReactComponentOfPropsAndState typedef available
-typedef ReactComponentOfPropsAndState<TProps, TState> = ReactComponentOf<TProps, TState>;
+typedef ReactComponentOfPropsAndState<TProps:{}, TState:{}> = ReactComponentOf<TProps, TState>;
 
 #if (!react_global)
 @:jsRequire("react", "Component")
@@ -26,7 +26,7 @@ typedef ReactComponentOfPropsAndState<TProps, TState> = ReactComponentOf<TProps,
 @:native('React.Component')
 @:keepSub
 @:autoBuild(react.ReactComponentMacro.build())
-extern class ReactComponentOf<TProps, TState>
+extern class ReactComponentOf<TProps:{}, TState:{}>
 {
 	var props(default, null):TProps;
 	var state(default, null):TState;
