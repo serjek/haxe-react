@@ -67,12 +67,3 @@ Which can be used in jsx just like any other component:
 	');
 ```
 
-### Using `@:jsxStatic` components outside jsx
-
-`@:jsxStatic` were at first only working when called from jsx. But since then,
-`CreateElementType` has been rewritten into `ReactNode` which handles
-`@:jsxStatic` components.
-
-So you can use `@:jsxStatic` components as any other component wherever a
-`ReactNode` is needed.
-
