@@ -11,6 +11,7 @@ class ReactComponentMacro {
 	static var builders:Array<Builder> = [
 		react.ReactMacro.buildComponent,
 		react.ReactTypeMacro.alterComponentSignatures,
+		react.jsx.JsxStaticMacro.disallowInReactComponent,
 		react.wrap.ReactWrapperMacro.buildComponent,
 
 		#if (debug && !react_ignore_empty_render)

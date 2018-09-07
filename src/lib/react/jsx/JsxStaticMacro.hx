@@ -53,6 +53,19 @@ class JsxStaticMacro
 		return null;
 	}
 
+	static public function disallowInReactComponent(
+		inClass:ClassType,
+		fields:Array<Field>
+	):Array<Field> {
+		if (inClass.meta.has(META_NAME))
+			Context.error(
+				'@${META_NAME} cannot be used on ReactComponent classes.',
+				inClass.meta.extract(META_NAME)[0].pos
+			);
+
+		return fields;
+	}
+
 	static public function addHook()
 	{
 		// Add hook to generate __init__ at the end of the compilation
