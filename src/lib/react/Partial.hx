@@ -8,8 +8,7 @@ using tink.MacroApi;
 
 @:forward
 abstract Partial<T>(T) {
-  @:from static macro function ofAny(e:Expr) {
-
+	@:from static macro function ofAny(e:Expr) {
 		var expected = getExpectedType();
 
 		var ret = switch followWithAbstracts(expected) {
@@ -22,15 +21,14 @@ abstract Partial<T>(T) {
 						kind: FProp('default', 'never', f.type.toComplex()),
 						meta: [{ name: ':optional', params: [], pos: e.pos }]
 					}
-				]);//TODO: consider caching these
+				]); //TODO: consider caching these
 
-				macro @:pos(e.pos) (cast $e:$t);
+				macro @:pos(e.pos) ($e:$t);
 			case v:
 				fatalError('Cannot have partial $v', currentPos());
 		}
 
 		var et = expected.toComplex();
-
 		return macro @:pos(e.pos) (cast $ret:$et);
-  }
+	}
 }
