@@ -1,3 +1,10 @@
+# Haxe React [#next](./doc/react-next.md) temporary fork
+
+[![TravisCI Build Status](https://travis-ci.org/kLabz/haxe-react.svg?branch=next)](https://travis-ci.org/kLabz/haxe-react)
+
+[haxe-react #next vs haxe-react](./doc/react-next.md) -
+ [Roadmap](./doc/react-next-roadmap.md)
+
 # Haxe React
 
 [![TravisCI Build Status](https://travis-ci.org/massiveinteractive/haxe-react.svg?branch=master)](https://travis-ci.org/massiveinteractive/haxe-react)
@@ -126,8 +133,8 @@ class App extends ReactComponent {
 
 ### JSX Fragments
 
-[Fragments](https://reactjs.org/docs/fragments.html) (React 16.2+) let you group 
-a list of children without adding extra nodes to the DOM. 
+[Fragments](https://reactjs.org/docs/fragments.html) (React 16.2+) let you group
+a list of children without adding extra nodes to the DOM.
 
 Two syntaxes are supported:
 ```jsx
