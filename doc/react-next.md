@@ -241,7 +241,8 @@ components. This helps catching following runtime warning sooner:
 Catching it at compile-time also ensures it does not happen to a component only
 visible for a few specific application state.
 
-You can disable this with the `-D react_ignore_empty_render` compilation flag.
+You can disable this with the `-D react_ignore_empty_render` compilation flag,
+or for a specific component by adding `@:ignoreEmptyRender` meta to it.
 
 #### [`ef0b0f1`][ef0b0f1] React runtime warnings: add check for state initialization
 
@@ -251,8 +252,8 @@ React runtime warnings, disabled by default, can be enabled with the
 They were previously enabled with `-D react_render_warning`, and only added the
 warning about avoidable re-renders. Note that this warning can have false
 positive due to the legacy context API (react-router for example). You can
-disable it for a specific component by adding `@:ignoreReRender` meta to this
-component ([`a7860c6`][a7860c6]).
+disable it for a specific component by adding `@:ignoreRenderWarning` meta to
+this component ([`a7860c6`][a7860c6]).
 
 A new warning has been added: if a component having a state does not have a
 constructor or has one but doesn't initialize its state in it, you will get a

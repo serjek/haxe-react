@@ -28,6 +28,20 @@ class).
 
 See [Static components](./static-components.md).
 
+## `@:ignoreEmptyRender`
+
+There is a compile-time check for an override of the `render` function in your
+components. This helps catching following runtime warning sooner:
+
+	Warning: Index(...): No `render` method found on the returned component
+	instance: you may have forgotten to define `render`.
+
+Catching it at compile-time also ensures it does not happen to a component only
+visible for a few specific application state.
+
+You can disable this with the `-D react_ignore_empty_render` compilation flag,
+or for a specific component by adding `@:ignoreEmptyRender` meta to it.
+
 ## `@:ignoreRenderWarning`
 
 TODO: runtime warnings documentation.
