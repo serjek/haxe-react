@@ -30,7 +30,8 @@ The change of parser implies some little syntax changes:
 Other changes introduced by tink_hxx:
 * Props are type-checked against the component's `TProps`
 * You cannot pass props not recognized by the target component
-* [Needs a tink_hxx release] You can use `${/* comments */}` / `{/* comments */}`in jsx
+* [With tink_hxx 0.17.0+] You can use `${/* comments */}` / `{/* comments */}`
+ in jsx to add comments that won't be included in generated javascript
 
 ### Further changes added in `#next`
 
