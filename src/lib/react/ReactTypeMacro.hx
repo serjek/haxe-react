@@ -8,10 +8,12 @@ import haxe.macro.TypeTools;
 
 class ReactTypeMacro
 {
+	static public inline var IGNORE_EMPTY_RENDER_META = ':ignoreEmptyRender';
+
 	#if macro
 	public static function ensureRenderOverride(inClass:ClassType, fields:Array<Field>):Array<Field>
 	{
-		if (!(inClass.isExtern || inClass.meta.has(':ignore_empty_render')))
+		if (!(inClass.isExtern || inClass.meta.has(IGNORE_EMPTY_RENDER_META)))
 			if (!Lambda.exists(fields, function(f) return f.name == 'render'))
 				Context.warning(
 					'Component ${inClass.name}: '
