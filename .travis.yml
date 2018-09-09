@@ -3,6 +3,7 @@ language: haxe
 haxe:
   - 3.4.4
   - stable
+  - 4.0.0-preview.4
   - development
 
 matrix:
