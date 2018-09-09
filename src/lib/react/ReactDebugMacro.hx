@@ -15,6 +15,8 @@ class ReactDebugMacro
 	#if macro
 	public static function buildComponent(inClass:ClassType, fields:Array<Field>):Array<Field>
 	{
+		if (inClass.isExtern) return fields;
+
 		var pos = Context.currentPos();
 		var propsType:Null<ComplexType> = macro :Dynamic;
 		var stateType:Null<ComplexType> = macro :Dynamic;
