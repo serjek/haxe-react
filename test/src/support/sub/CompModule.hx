@@ -2,6 +2,7 @@ package support.sub;
 
 import react.ReactComponent;
 
+@:ignoreEmptyRender
 class CompModule extends ReactComponent
 {
 	static public var defaultProps = {
@@ -9,9 +10,9 @@ class CompModule extends ReactComponent
 		defB:43
 	}
 
-	public function new() 
+	public function new()
 	{
 		super();
 	}
-	
+
 }

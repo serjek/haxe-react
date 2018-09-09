@@ -370,7 +370,7 @@ class ReactMacro
 				macro @:pos(cond.pos) if ($cond) ${body(cons)} else ${body(alt)};
 
 			case CFor(head, expr):
-				macro @:pos(head.pos) ([for ($head) ${body(expr)}]:Array<Dynamic>);
+				macro @:pos(head.pos) ([for ($head) ${body(expr)}]:Array<ReactFragment>);
 
 			case CSwitch(target, cases):
 				ESwitch(target, [for (c in cases) {
@@ -386,7 +386,7 @@ class ReactMacro
 
 	static function body(c:Children)
 	{
-		return macro $a{children(c, macro :Dynamic).individual};
+		return macro $a{children(c, macro :ReactFragment).individual};
 	}
 
 	static var componentsMap:Map<String, ComponentInfo> = new Map();
