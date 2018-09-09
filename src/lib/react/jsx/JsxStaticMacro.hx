@@ -163,7 +163,7 @@ class JsxStaticMacro
 			case WithParams(_, params): extractMetaName(params.pop());
 			case NoParams(meta):
 				Context.fatalError(
-					"Parameter required for @:jsxStatic('name-of-static-function')",
+					'Parameter required for @${META_NAME}(nameOfStaticFunction)',
 					meta.pos
 				);
 		};
@@ -177,7 +177,7 @@ class JsxStaticMacro
 
 			default:
 				Context.fatalError(
-					"@:jsxStatic: invalid parameter. Expected static function name.",
+					'@${META_NAME}: invalid parameter. Expected static function name.',
 					metaExpr.pos
 				);
 		};
