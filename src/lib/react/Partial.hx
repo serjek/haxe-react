@@ -15,7 +15,7 @@ abstract Partial<T>(T) {
 			case TDynamic(_): e;
 			case TAnonymous(_.get().fields => fields):
 
-				var found = switch typeof(e) {
+				var found = switch followWithAbstracts(typeof(e)) {
 					case TAnonymous(a): a.get().fields;
 					case t: e.reject('$t should be anonymous object');
 				}
