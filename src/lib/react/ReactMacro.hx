@@ -186,43 +186,12 @@ class ReactMacro
 			}
 	}
 
-	static function extractChildrenType(type:Expr):ComplexType
-	{
-		try {
-			switch (Context.typeof(type)) {
-				case TType(_, _):
-					var tprops = Context.storeTypedExpr(Context.typeExpr(macro @:pos(type.pos) {
-						function get<T>(c:Class<T>):T return null;
-						@:privateAccess get($type).props;
-					}));
-
-					switch (Context.typeof(tprops)) {
-						case TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _):
-							for (f in fields)
-								if (f.name == 'children')
-									return TypeTools.toComplexType(f.type);
-
-						default:
-					}
-
-				case TFun([{t: TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _)}], _):
-					for (f in fields)
-						if (f.name == 'children')
-							return TypeTools.toComplexType(f.type);
-
-				default:
-			}
-
-		} catch (e:Dynamic) {}
-
-		return macro :react.ReactComponent.ReactFragment;
-	}
-
 	static function extractNeededAttrs(type:Expr)
 	{
 		var neededAttrs = [];
+		var childrenType = macro :react.ReactComponent.ReactFragment;
 
-		try {
+		if (!Context.defined('display')) try {
 			switch (Context.typeof(type)) {
 				case TType(_, _):
 					var tprops = Context.storeTypedExpr(Context.typeExpr(macro @:pos(type.pos) {
@@ -232,24 +201,32 @@ class ReactMacro
 
 					switch (Context.typeof(tprops)) {
 						case TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _):
-							for (f in fields)
+							for (f in fields) {
+								if (f.name == 'children')
+									childrenType = TypeTools.toComplexType(f.type);
+
 								if (!f.meta.has(':optional'))
 									neededAttrs.push(f.name);
+							}
 
 						default:
 					}
 
 				case TFun([{t: TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _)}], _):
-					for (f in fields)
+					for (f in fields) {
+						if (f.name == 'children')
+							childrenType = TypeTools.toComplexType(f.type);
+
 						if (!f.meta.has(':optional'))
 							neededAttrs.push(f.name);
+					}
 
 				default:
 			}
 
 		} catch (e:Dynamic) {}
 
-		return neededAttrs;
+		return {attrs: neededAttrs, children: childrenType};
 	}
 
 	static function child(c:Child)
@@ -274,8 +251,10 @@ class ReactMacro
 				var key = null;
 				var ref = null;
 				var pos = n.name.pos;
-				var neededAttrs = extractNeededAttrs(type);
-				var childrenType = extractChildrenType(type);
+
+				var needed = extractNeededAttrs(type);
+				var neededAttrs = needed.attrs;
+				var childrenType = needed.children;
 
 				function add(name:StringAt, e:Expr)
 				{
@@ -292,17 +271,17 @@ class ReactMacro
 						case Splat(e):
 							spread.push(e);
 							// Spread is not handled, so we assume every needed prop is passed
-							neededAttrs = [];
+							if (!Context.defined('display')) neededAttrs = [];
 
 						case Empty(invalid = { value: 'key' | 'ref'}):
 							invalid.pos.error('attribute ${invalid.value} must have a value');
 
 						case Empty(name):
-							neededAttrs.remove(name.value);
+							if (!Context.defined('display')) neededAttrs.remove(name.value);
 							add(name, macro @:pos(name.pos) true);
 
 						case Regular(name, value):
-							neededAttrs.remove(name.value);
+							if (!Context.defined('display')) neededAttrs.remove(name.value);
 							var expr = value.getString()
 								.map(function (s) return macro $v{replaceEntities(s, value.pos)})
 								.orUse(value);
@@ -318,13 +297,16 @@ class ReactMacro
 
 				// parse children
 				var children = children(n.children, childrenType);
-				if (children.compound != null) neededAttrs.remove('children');
 
-				for (attr in neededAttrs)
-					Context.warning(
-						'Missing prop `$attr` for component `${n.name.value}`',
-						c.pos
+				if (!Context.defined('display')) {
+					if (children.compound != null) neededAttrs.remove('children');
+
+					for (attr in neededAttrs)
+						Context.warning(
+							'Missing prop `$attr` for component `${n.name.value}`',
+							c.pos
 					);
+				}
 
 				// inline declaration or createElement?
 				var typeInfo = getComponentInfo(type);
