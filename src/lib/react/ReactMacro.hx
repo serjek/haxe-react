@@ -186,13 +186,19 @@ class ReactMacro
 			}
 	}
 
+	// TODO: this needs proper naming; also , what about compilation server?
+	static var neededAttrsCache:Map<String, {attrs: Array<String>, children:ComplexType}> = new Map();
 	static function extractNeededAttrs(type:Expr)
 	{
 		var neededAttrs = [];
 		var childrenType = macro :react.ReactComponent.ReactFragment;
 
-		if (!Context.defined('display')) try {
-			switch (Context.typeof(type)) {
+		try {
+			var t = Context.typeof(type);
+			var tKey = TypeTools.toString(t);
+			if (neededAttrsCache.exists(tKey)) return neededAttrsCache.get(tKey);
+
+			switch (t) {
 				case TType(_, _):
 					var tprops = Context.storeTypedExpr(Context.typeExpr(macro @:pos(type.pos) {
 						function get<T>(c:Class<T>):T return null;
@@ -223,6 +229,11 @@ class ReactMacro
 
 				default:
 			}
+
+			neededAttrsCache.set(tKey, {
+				attrs: neededAttrs,
+				children: childrenType
+			});
 
 		} catch (e:Dynamic) {}
 
@@ -271,17 +282,17 @@ class ReactMacro
 						case Splat(e):
 							spread.push(e);
 							// Spread is not handled, so we assume every needed prop is passed
-							if (!Context.defined('display')) neededAttrs = [];
+							neededAttrs = [];
 
 						case Empty(invalid = { value: 'key' | 'ref'}):
 							invalid.pos.error('attribute ${invalid.value} must have a value');
 
 						case Empty(name):
-							if (!Context.defined('display')) neededAttrs.remove(name.value);
+							neededAttrs.remove(name.value);
 							add(name, macro @:pos(name.pos) true);
 
 						case Regular(name, value):
-							if (!Context.defined('display')) neededAttrs.remove(name.value);
+							neededAttrs.remove(name.value);
 							var expr = value.getString()
 								.map(function (s) return macro $v{replaceEntities(s, value.pos)})
 								.orUse(value);
@@ -297,10 +308,9 @@ class ReactMacro
 
 				// parse children
 				var children = children(n.children, childrenType);
+				if (children.compound != null) neededAttrs.remove('children');
 
 				if (!Context.defined('display')) {
-					if (children.compound != null) neededAttrs.remove('children');
-
 					for (attr in neededAttrs)
 						Context.warning(
 							'Missing prop `$attr` for component `${n.name.value}`',
