@@ -25,7 +25,7 @@ typedef ReactComponentOfPropsAndState<TProps:{}, TState:{}> = ReactComponentOf<T
 #end
 @:native('React.Component')
 @:keepSub
-@:autoBuild(react.ReactComponentMacro.build())
+@:autoBuild(react.macro.ReactComponentMacro.build())
 extern class ReactComponentOf<TProps:{}, TState:{}>
 {
 	var props(default, null):TProps;

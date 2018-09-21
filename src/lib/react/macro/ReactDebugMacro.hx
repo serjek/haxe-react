@@ -1,4 +1,4 @@
-package react;
+package react.macro;
 
 #if macro
 import haxe.macro.Context;
@@ -252,9 +252,9 @@ class ReactDebugMacro
 					);
 				}};
 
-				if (react.ReactDebugMacro.firstRenderWarning)
+				if (react.macro.ReactDebugMacro.firstRenderWarning)
 				{
-					react.ReactDebugMacro.firstRenderWarning = false;
+					react.macro.ReactDebugMacro.firstRenderWarning = false;
 
 					js.Browser.console.warn(
 						'Make sure your props are flattened, or implement shouldComponentUpdate.\n' +

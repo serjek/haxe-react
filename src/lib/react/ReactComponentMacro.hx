@@ -1,42 +1,19 @@
 package react;
 
-#if macro
-import haxe.macro.Context;
-import haxe.macro.Expr;
-import haxe.macro.Type;
+import react.macro.ReactComponentMacro as RealReactComponentMacro;
+import react.macro.ReactComponentMacro.Builder;
 
-typedef Builder = ClassType -> Array<Field> -> Array<Field>;
-
+@:deprecated('ReactComponentMacro has moved to react.macro package')
 class ReactComponentMacro {
-	static var builders:Array<Builder> = [
-		react.ReactMacro.buildComponent,
-		react.ReactTypeMacro.alterComponentSignatures,
-		react.jsx.JsxStaticMacro.disallowInReactComponent,
-		react.wrap.ReactWrapperMacro.buildComponent,
-		react.macro.PureComponentMacro.buildComponent,
-
-		#if !react_ignore_empty_render
-		react.ReactTypeMacro.ensureRenderOverride,
-		#end
-
-		#if (debug && react_runtime_warnings)
-		react.ReactDebugMacro.buildComponent,
-		#end
-	];
-
-	static public function appendBuilder(builder:Builder):Void builders.push(builder);
-	static public function prependBuilder(builder:Builder):Void builders.unshift(builder);
-
-	static public function build():Array<Field>
+	@:deprecated('ReactComponentMacro has moved to react.macro package')
+	static public function appendBuilder(builder:Builder):Void
 	{
-		var inClass = Context.getLocalClass().get();
+		RealReactComponentMacro.appendBuilder(builder);
+	}
 
-		return Lambda.fold(
-			builders,
-			function(builder, fields) return builder(inClass, fields),
-			Context.getBuildFields()
-		);
+	@:deprecated('ReactComponentMacro has moved to react.macro package')
+	static public function prependBuilder(builder:Builder):Void
+	{
+		RealReactComponentMacro.prependBuilder(builder);
 	}
 }
-#end
-

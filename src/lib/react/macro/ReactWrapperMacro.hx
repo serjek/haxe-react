@@ -1,4 +1,4 @@
-package react.wrap;
+package react.macro;
 
 import haxe.macro.ComplexTypeTools;
 import haxe.macro.Context;

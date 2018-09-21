@@ -21,7 +21,7 @@ typedef ReactComponentOfState<TState> = ReactComponentOf<Void, TState>;
 typedef ReactComponentOfPropsAndState<TProps, TState> = ReactComponentOf<TProps, TState>;
 #end
 
-@:autoBuild(react.ReactComponentMacro.build())
+@:autoBuild(react.macro.ReactComponentMacro.build())
 class ReactComponentOf<TProps, TState>
 {
 	static var defaultProps:Dynamic;
