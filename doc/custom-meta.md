@@ -42,6 +42,10 @@ visible for a few specific application state.
 You can disable this with the `-D react_ignore_empty_render` compilation flag,
 or for a specific component by adding `@:ignoreEmptyRender` meta to it.
 
+## `@:pureComponent`
+
+TODO: Documentation for macro implementation of pure components.
+
 ## `@:ignoreRenderWarning`
 
-TODO: runtime warnings documentation.
+TODO: Documentation for runtime warnings.

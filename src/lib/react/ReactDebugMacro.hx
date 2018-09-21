@@ -5,6 +5,8 @@ import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 import haxe.macro.TypeTools;
+
+import react.macro.MacroUtil.isEmpty;
 #end
 
 class ReactDebugMacro
@@ -45,17 +47,6 @@ class ReactDebugMacro
 			addConstructor(fields, inClass, propsType, stateType);
 
 		return fields;
-	}
-
-	static function isEmpty(type:ComplexType):Bool
-	{
-		return switch (type) {
-			case TPath({name: "Empty", sub: null, pack: ["react"], params: []}):
-				true;
-
-			default:
-				false;
-		};
 	}
 
 	static function updateConstructor(

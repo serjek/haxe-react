@@ -13,6 +13,7 @@ class ReactComponentMacro {
 		react.ReactTypeMacro.alterComponentSignatures,
 		react.jsx.JsxStaticMacro.disallowInReactComponent,
 		react.wrap.ReactWrapperMacro.buildComponent,
+		react.macro.PureComponentMacro.buildComponent,
 
 		#if !react_ignore_empty_render
 		react.ReactTypeMacro.ensureRenderOverride,

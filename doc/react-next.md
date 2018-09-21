@@ -229,6 +229,11 @@ jsx via `ReactNode` abstract.
 See [Wrapping your components in HOCs](./wrapping-with-hoc.md) for more
 information about wrapping components in HOC.
 
+## PureComponent implementation(s)
+
+TODO:
+Documentation for `@:pureComponent`+ implement `PureComponent` extern somehow.
+
 ## More debug tools
 
 #### [`98233c3`][98233c3] Add warning if ReactComponent's render has no override
