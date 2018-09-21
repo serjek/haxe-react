@@ -23,7 +23,8 @@ class PureComponentMacro
 
 			switch (inClass.superClass)
 			{
-				case {params: params, t: _.toString() => 'react.ReactComponentOf'}:
+				case {params: params, t: _.toString() => cls}
+				if (cls == 'react.ReactComponentOf' || cls == 'react.PureComponentOf'):
 					propsType = params[0];
 					stateType = params[1];
 
