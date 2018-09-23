@@ -6,11 +6,17 @@ components) are lightweight components that only rely on their props to render.
 Not being real components means that they are not subject to react component
 lifecycle, and so are more lightweight than standard components.
 
-They are similar to `PureComponent` but again more lightweight since
-`PureComponent`s still rely on react component lifecycle (which is optimized
-with `shouldComponentUpdate`, but functions are still called, etc.).
+They serve a different purpose than `PureComponent`: their render function will
+still get called everytime their parent updates, regardless of the static
+component's props. Static components should have simple render functions,
+allowing them to be faster than pure components even if they do not support
+`shouldComponentUpdate`.
 
-They can be expressed as static functions:
+Static components should be avoided when their parent updates often and the
+static component's props mostly stays the same. Use `PureComponent` for this use
+case.
+
+Static components can be expressed as static functions:
 ```haxe
 class MyComponents {
 	public static function heading(props:{children:String}) {

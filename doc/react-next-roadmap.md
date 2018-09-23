@@ -1,4 +1,4 @@
-# React #next: roadmap
+# Haxe React #next: roadmap
 
 There's still work to be done being this fork is ready for a haxe-react 2.0.0
 candidate. This file will be updated with new bugs and new feature ideas that
@@ -16,23 +16,25 @@ happy to consider them.
 
 ## Features needing improvements / new features
 
-* `Partial<T>`: fix unification when dealing with abstract fields (see PR #5)
-* `Partial<T>`: cache generated types
-* `@:jsxStatic`: enforce typing of argument (with proper errors when failing)
 * New react context API with a sample app
+* Jsx macro performances improvement (working on it) to reduce compilation time
+* `@:jsxStatic`: enforce typing of argument (with proper errors when failing)
 * Generate `propTypes` from components' `TProps` when compiling with `-debug`
- and `-D react_generate-proptypes`
+ and `-D react-generate-proptypes`
 
 ### Some more things that **may** be added too
 
 * Inline `@:jsxStatic` proxy field to help with performance and file size
 * Some helpers to create HOCs (which can then be used with `@:wrap`)
-* More stability with both runtime warnings and hot reloading
+* More stability with both runtime warnings and hot reloading enabled
+* Some improvements for `Partial<T>`
 
 ## Documentation
 
+* PureComponent
 * Runtime warnings documentation
+* New react APIs: refs, context
+* Update README.md
 * Proper migration guide (based off [react #next doc](./react-next.md))
 * Test (and potentially update) samples
 * Add more samples for new APIs
-

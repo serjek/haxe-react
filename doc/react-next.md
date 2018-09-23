@@ -1,4 +1,4 @@
-# React #next
+# Haxe React #next
 
 Branch `#next` of my haxe-react fork aims to move haxe-react forward to `2.0.0+`
 with an increased freedom to break things until I get them right.
@@ -229,10 +229,10 @@ jsx via `ReactNode` abstract.
 See [Wrapping your components in HOCs](./wrapping-with-hoc.md) for more
 information about wrapping components in HOC.
 
-## PureComponent implementation(s)
+### PureComponent and `@:pureComponent`
 
-TODO:
-Documentation for `@:pureComponent`+ implement `PureComponent` extern somehow.
+TODO: Documentation for `@:pureComponent`+ `PureComponent` extern, differences
+between macro implementation and extern.
 
 ## More debug tools
 
