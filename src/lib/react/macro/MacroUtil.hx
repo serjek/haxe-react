@@ -9,6 +9,9 @@ class MacroUtil {
 	static public function isEmpty(type:ComplexType):Bool
 	{
 		return switch (type) {
+			case TPath({name: "Dynamic", sub: null, pack: [], params: []}):
+				true;
+
 			case TPath({name: "Empty", sub: null, pack: ["react"], params: []}):
 				true;
 
