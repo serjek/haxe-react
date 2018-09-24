@@ -1,21 +1,19 @@
-# Haxe React [#next](./doc/react-next.md) temporary fork
+# Haxe React [#next](./doc/react-next.md) temp fork (See [Roadmap](./doc/react-next-roadmap.md))
 
 [![TravisCI Build Status](https://travis-ci.org/kLabz/haxe-react.svg?branch=next)](https://travis-ci.org/kLabz/haxe-react)
-
-[haxe-react #next vs haxe-react](./doc/react-next.md) -
- [Roadmap](./doc/react-next-roadmap.md)
-
-# Haxe React
-
-[![TravisCI Build Status](https://travis-ci.org/massiveinteractive/haxe-react.svg?branch=master)](https://travis-ci.org/massiveinteractive/haxe-react)
-[![Haxelib Version](https://img.shields.io/github/tag/massiveinteractive/haxe-react.svg?label=haxelib)](http://lib.haxe.org/p/react)
+[![Haxelib Version](https://img.shields.io/github/tag/kLabz/haxe-react.svg?label=haxelib)](http://lib.haxe.org/p/react-next)
 [![Join the chat at https://gitter.im/haxe-react](https://img.shields.io/badge/gitter-join%20chat-brightgreen.svg)](https://gitter.im/haxe-react/Lobby)
 
 A Haxe library offering externs and tool functions leveraging Haxe's excellent type system and
 compile time macros to offer a strongly typed language to work with the increasingly popular
 [React](https://facebook.github.io/react/) library.
 
-	haxelib install react
+	haxelib install react-next
+
+### ⚠️ Warning: README.md outdated
+
+This readme needs many updates. See [changes in #next](./doc/react-next.md); other docs available
+in [`doc` folder](./doc/).
 
 ### What's included / not included
 

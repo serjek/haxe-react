@@ -24,12 +24,12 @@ case "$(uname -s)" in
      ;;
    *)
      sed -E -i "$PATTERN" ./haxelib.json
-     sed -E -i "$PATTERN" ./mdk-info.json
+     sed -E -i "$PATTERN" ./mdk/info.json
      ;;
 esac
 
 # Tag, commit and push to trigger a new CI release
 git commit -am "Release version $VERSION"
-git push origin master
+# git push origin master
 git tag $VERSION
-git push origin $VERSION
+# git push origin $VERSION

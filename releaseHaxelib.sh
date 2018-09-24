@@ -1,4 +1,5 @@
 #!/bin/sh
 rm -f haxe-react.zip
-zip -r haxe-react.zip src haxelib.json readme.md changes.md
-haxelib submit haxe-react.zip $1 $2 --always
+zip -r haxe-react.zip src haxelib.json README.md changes.md doc
+# haxelib submit haxe-react.zip $1 $2 --always
+haxelib submit haxe-react.zip

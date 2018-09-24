@@ -8,3 +8,5 @@ example-filterproducts/node_modules
 *.map
 test/report/
 test/build/
+haxe-react.zip
+
