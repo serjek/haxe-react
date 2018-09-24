@@ -91,6 +91,13 @@ The `context` field on `ReactComponent` has been removed because it has been
 deprecated in react and its use as a class field is discouraged. You can add it
 back with this flag if needed.
 
+## `-D react_ignore_failed_props_inference`
+
+Jsx parser currently cannot apply type checker on some components (see
+[#7](https://github.com/kLabz/haxe-react/issues/7)) and will produce warnings.
+
+This compilation flags disable these warnings.
+
 ## `-D react_wrap_strict`
 
 Enable strict mode for `@:wrap` HOC wrapping. This will ensure you define the

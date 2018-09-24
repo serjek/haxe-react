@@ -122,6 +122,11 @@ class ReactMacro
 		{
 			placeholder = Context.storeTypedExpr(Context.typeExpr(placeholder));
 
+			var isTMono = switch (Context.typeof(placeholder)) {
+				case TMono(_.get() => null): true;
+				default: false;
+			};
+
 			return function (name:StringAt, value:Expr) {
 				var field = name.value;
 				var target = macro @:pos(name.pos) $placeholder.$field;
@@ -131,9 +136,24 @@ class ReactMacro
 					__pseudo = $value;
 				});
 
+				if (isTMono) {
+					#if !react_ignore_failed_props_inference
+					Context.warning(
+						'Type checking failed: unable to infer '
+						+ 'needed props for ${ExprTools.toString(type)}',
+						type.pos
+					);
+					#end
+
+					return value;
+				}
+
 				var ct = TypeTools.toComplexType(t);
 				if (ct == null) return value;
-				return macro @:pos(value.pos) ($value :$ct);
+
+				return Context.storeTypedExpr(Context.typeExpr(
+					macro @:pos(value.pos) ($value :$ct)
+				));
 			}
 		}
 
