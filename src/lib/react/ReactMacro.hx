@@ -131,6 +131,23 @@ class ReactMacro
 				var field = name.value;
 				var target = macro @:pos(name.pos) $placeholder.$field;
 
+				// Handle components accepting more than their own props
+				try {
+					Context.typeof(target);
+				} catch (e:Dynamic) {
+					var reg = new EReg('has no field $field($| \\(Suggestion: \\w+\\))', '');
+					if (reg.match(e.toString())) {
+						switch (Context.typeof(type)) {
+							case TType(_.get().type => TAnonymous(_.get() => {
+								status: AClassStatics(_.get() => t)
+							}), _) if (t.meta.has(':acceptsMoreProps')):
+								return value;
+
+							default:
+						}
+					}
+				}
+
 				var t = Context.typeof(macro @:pos(value.pos) {
 					var __pseudo = $target;
 					__pseudo = $value;

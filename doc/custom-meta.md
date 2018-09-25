@@ -49,3 +49,19 @@ TODO: Documentation for macro implementation of pure components.
 ## `@:ignoreRenderWarning`
 
 TODO: Documentation for runtime warnings.
+
+## `@:acceptsMoreProps`
+
+Some components accept specific props, but also any number of additional props
+that are usually passed down to an unknown child component.
+
+This is not the safest pattern out there, but you might have to write or use
+externs for this kind of components. Haxe React jsx parser being very strict
+with the props, this meta was needed to define this behavior.
+
+```haxe
+typedef Props = { /* define your props here */ }
+
+@:acceptsMoreProps
+class MyComponent extends ReactComponentOfProps<Props> {}
+```
