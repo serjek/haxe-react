@@ -2,6 +2,7 @@
 set -e
 
 VERSION=$1
+MESSAGE=$2
 
 # Validate version
 if [ -z "$VERSION" ]; then
@@ -11,6 +12,12 @@ fi
 if [ $(git tag -l "$VERSION") ]; then
     echo "Tag $VERSION already exists"
     exit 1
+fi
+
+if [ -z "$MESSAGE" ]; then
+	MESSAGE=""
+else
+	MESSAGE=" - $MESSAGE"
 fi
 
 # Change version in haxelib.json and package.json
@@ -29,7 +36,9 @@ case "$(uname -s)" in
 esac
 
 # Tag, commit and push to trigger a new CI release
-git commit -am "Release version $VERSION"
-# git push origin master
+git add ./haxelib.json
+git add ./mdk/info.json
+git commit -m "$VERSION$MESSAGE"
+git push fork next
 git tag $VERSION
-# git push origin $VERSION
+git push fork $VERSION
