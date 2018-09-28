@@ -19,9 +19,9 @@ install:
 script:
   - haxelib run munit test -js
 
-deploy:
-  - provider: script
-    haxe: 3.4.4
-    script: bash ./releaseHaxelib.sh $HAXELIB_USER $HAXELIB_PWD
-    on:
-      tags: true
+# deploy:
+#   - provider: script
+#     haxe: 3.4.4
+#     script: bash ./releaseHaxelib.sh $HAXELIB_USER $HAXELIB_PWD
+#     on:
+#       tags: true
