@@ -168,9 +168,40 @@ class ReactMacro
 				var ct = TypeTools.toComplexType(t);
 				if (ct == null) return value;
 
-				return Context.storeTypedExpr(Context.typeExpr(
-					macro @:pos(value.pos) ($value :$ct)
-				));
+
+				var typedExpr = try {
+					Context.typeExpr(macro @:pos(value.pos) ($value :$ct));
+				} catch (e:haxe.macro.Error) {
+					if (StringTools.startsWith(e.message, "Type not found")) {
+						var pos = switch (Context.typeof(placeholder)) {
+							case TType(_.get().type => TAnonymous(_.get().fields => fields), _):
+								var f = Lambda.find(fields, function(f) return f.name == field);
+								f == null ? target.pos : f.pos;
+
+							default: target.pos;
+						}
+
+						Context.warning(
+							'Cannot use import aliases for typing props.\n'
+							+ 'Use `typedef Alias = real.Type` instead of '
+							+ '`import real.Type as Alias`.',
+							pos
+						);
+
+						if (pos != target.pos) {
+							Context.warning(
+								'Called from here',
+								target.pos
+							);
+						}
+
+						Context.typeExpr(value);
+					} else {
+						Context.error(e.message, e.pos);
+					}
+				};
+
+				return Context.storeTypedExpr(typedExpr);
 			}
 		}
 
