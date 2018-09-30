@@ -5,6 +5,8 @@ import haxe.macro.Expr;
 import haxe.macro.Type;
 import haxe.macro.TypeTools;
 
+using haxe.macro.Tools;
+
 class MacroUtil {
 	static public function isEmpty(type:ComplexType):Bool
 	{
@@ -17,6 +19,32 @@ class MacroUtil {
 
 			default:
 				false;
+		};
+	}
+
+	static public function tryFollow(t:Type):Type
+	{
+		var t1 = t.follow();
+
+		return try {
+			var ct = TypeTools.toComplexType(t1);
+			Context.typeExpr(macro (null :$ct));
+			t1;
+		} catch (e:Dynamic) {
+			null;
+		};
+	}
+
+	static public function tryMapFollow(t:Type):Type
+	{
+		var t1 = t.map(function(t) return t.follow());
+
+		return try {
+			var ct = TypeTools.toComplexType(t1);
+			Context.typeExpr(macro (null :$ct));
+			t1;
+		} catch (e:Dynamic) {
+			null;
 		};
 	}
 

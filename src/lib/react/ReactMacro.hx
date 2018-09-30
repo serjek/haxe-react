@@ -1,17 +1,19 @@
 package react;
 
 #if macro
-import react.jsx.HtmlEntities;
-import tink.hxx.Parser;
+import haxe.ds.Option;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 import haxe.macro.TypeTools;
-import haxe.ds.Option;
 import tink.hxx.Node;
+import tink.hxx.Parser;
 import tink.hxx.StringAt;
-using tink.MacroApi;
+import react.jsx.HtmlEntities;
 import react.jsx.JsxStaticMacro;
+import react.macro.MacroUtil;
+
+using tink.MacroApi;
 
 #if (haxe_ver < 4)
 typedef ObjectField = {field:String, expr:Expr};
@@ -173,29 +175,12 @@ class ReactMacro
 					Context.typeExpr(macro @:pos(value.pos) ($value :$ct));
 				} catch (e:haxe.macro.Error) {
 					if (StringTools.startsWith(e.message, "Type not found")) {
-						var pos = switch (Context.typeof(placeholder)) {
-							case TType(_.get().type => TAnonymous(_.get().fields => fields), _):
-								var f = Lambda.find(fields, function(f) return f.name == field);
-								f == null ? target.pos : f.pos;
+						var t1 = MacroUtil.tryFollow(t);
+						if (t1 == null) t1 = MacroUtil.tryMapFollow(t);
+						if (t1 != null) t = t1;
 
-							default: target.pos;
-						}
-
-						Context.warning(
-							'Cannot use import aliases for typing props.\n'
-							+ 'Use `typedef Alias = real.Type` instead of '
-							+ '`import real.Type as Alias`.',
-							pos
-						);
-
-						if (pos != target.pos) {
-							Context.warning(
-								'Called from here',
-								target.pos
-							);
-						}
-
-						Context.typeExpr(value);
+						var ct = TypeTools.toComplexType(t);
+						Context.typeExpr(macro @:pos(value.pos) ($value :$ct));
 					} else {
 						Context.error(e.message, e.pos);
 					}
