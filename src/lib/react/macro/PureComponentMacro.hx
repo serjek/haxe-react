@@ -9,6 +9,7 @@ import react.macro.MacroUtil.*;
 
 class PureComponentMacro
 {
+	static public inline var PURE_COMPONENT_BUILDER = 'PureComponent';
 	static public inline var PURE_META = ':pureComponent';
 	static inline var PURE_INJECTED_META = ':pureComponent_injected';
 

@@ -8,6 +8,8 @@ import haxe.macro.TypeTools;
 
 class ReactTypeMacro
 {
+	static public inline var ALTER_SIGNATURES_BUILDER = 'AlterSignatures';
+	static public inline var ENSURE_RENDER_OVERRIDE_BUILDER = 'EnsureRenderOverride';
 	static public inline var IGNORE_EMPTY_RENDER_META = ':ignoreEmptyRender';
 
 	#if macro

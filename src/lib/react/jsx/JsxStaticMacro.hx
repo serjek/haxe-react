@@ -21,8 +21,9 @@ private enum MetaValueType {
 
 class JsxStaticMacro
 {
-	static public var META_NAME = ':jsxStatic';
-	static public var FIELD_NAME = '__jsxStatic';
+	static public inline var DISALLOW_IN_REACT_COMPONENT_BUILDER = 'JsxStaticDisallowInReactComponent';
+	static public inline var META_NAME = ':jsxStatic';
+	static public inline var FIELD_NAME = '__jsxStatic';
 
 	static var decls:Array<JsxStaticDecl> = [];
 
