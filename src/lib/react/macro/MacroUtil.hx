@@ -22,13 +22,45 @@ class MacroUtil {
 		};
 	}
 
-	static public function tryFollow(t:Type):Type
+	static public function testType(t:Type):Bool
 	{
-		var t1 = t.follow();
+		if (t == null) return false;
 
 		return try {
-			var ct = TypeTools.toComplexType(t1);
-			Context.typeExpr(macro (null :$ct));
+			var ct = TypeTools.toComplexType(t);
+			testComplexType(ct);
+		} catch (e:Dynamic) {
+			false;
+		}
+	}
+
+	static public function testComplexType(ct:ComplexType):Bool
+	{
+		if (ct == null) return false;
+
+		return try {
+			compileComplexType(ct);
+			true;
+		} catch (e:Dynamic) {
+			false;
+		}
+	}
+
+	static function compileType(t:Type):Void
+	{
+		compileComplexType(t.toComplexType());
+	}
+
+	static function compileComplexType(ct:ComplexType):Void
+	{
+		Context.typeExpr(macro (null :$ct));
+	}
+
+	static public function tryFollow(t:Type):Type
+	{
+		return try {
+			var t1 = t.follow();
+			compileType(t1);
 			t1;
 		} catch (e:Dynamic) {
 			null;
@@ -37,11 +69,9 @@ class MacroUtil {
 
 	static public function tryMapFollow(t:Type):Type
 	{
-		var t1 = t.map(function(t) return t.follow());
-
 		return try {
-			var ct = TypeTools.toComplexType(t1);
-			Context.typeExpr(macro (null :$ct));
+			var t1 = t.map(function(t) return t.follow());
+			compileType(t1);
 			t1;
 		} catch (e:Dynamic) {
 			null;
