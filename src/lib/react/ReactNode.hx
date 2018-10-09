@@ -107,25 +107,27 @@ abstract ReactNode(Node) to Node
 }
 
 abstract ReactNodeOf<TProps>(ReactNode) to ReactNode {
+	private inline function new(node:ReactNode) this = node;
+
 	#if !macro
 	@:from
-	static public function fromFunctionWithProps<TProps, T:TProps>(f:T->ReactFragment):ReactNodeOf<TProps>
+	static public function fromFunctionWithProps<TProps>(f:TProps->ReactFragment):ReactNodeOf<TProps>
 	{
-		return cast (f:ReactNode);
+		return new ReactNodeOf(f);
 	}
 
 	@:from
-	static public function fromComp<TProps, T:TProps, TState:{}>(
-		cls:Class<ReactComponentOf<T, TState>>
+	static public function fromComp<TProps:{}, TState:{}>(
+		cls:Class<ReactComponentOf<TProps, TState>>
 	):ReactNodeOf<TProps>
 	{
-		return cast (cls:ReactNode);
+		return new ReactNodeOf(cls);
 	}
 
 	@:from
 	static public function fromFunctionWithoutProps<TProps>(f:Void->ReactFragment):ReactNodeOf<TProps>
 	{
-		return cast (f:ReactNode);
+		return new ReactNodeOf(f);
 	}
 
 	@:from
@@ -133,7 +135,7 @@ abstract ReactNodeOf<TProps>(ReactNode) to ReactNode {
 		cls:Class<ReactComponentOf<react.Empty, TState>>
 	):ReactNodeOf<TProps>
 	{
-		return cast (cls:ReactNode);
+		return new ReactNodeOf(cls);
 	}
 	#end
 
