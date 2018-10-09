@@ -54,7 +54,7 @@ class ReactWrapperMacro
 		fields.push({
 			access: [APublic, AStatic],
 			name: fieldName,
-			kind: FVar(fieldType, macro cast ${wrapperExpr}),
+			kind: FVar(fieldType, macro cast (${wrapperExpr} :react.ReactNode)),
 			doc: null,
 			meta: null,
 			pos: inClass.pos
