@@ -15,6 +15,8 @@ class ReactTypeMacro
 	#if macro
 	public static function alterComponentSignatures(inClass:ClassType, fields:Array<Field>):Array<Field>
 	{
+		if (inClass.isExtern) return fields;
+
 		var propsType:ComplexType = macro :Dynamic;
 		var stateType:ComplexType = macro :Dynamic;
 

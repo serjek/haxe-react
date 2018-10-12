@@ -605,9 +605,8 @@ class ReactMacro
 	 */
 	static function tagComponent(fields:Array<Field>, inClass:ClassType, pos:Position)
 	{
-		#if !debug
-		return;
-		#end
+		#if !debug return; #end
+		if (inClass.isExtern) return;
 
 		addDisplayName(fields, inClass, pos);
 
