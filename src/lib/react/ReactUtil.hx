@@ -74,15 +74,17 @@ class ReactUtil
 		- as a object
 		- or as a function (child->props)
 	**/
-	public static function cloneChildren(children:Dynamic, props:Dynamic):Dynamic
+	public static function cloneChildren(children:ReactFragment, props:Dynamic):ReactFragment
 	{
 		if (Reflect.isFunction(props))
 			return React.Children.map(children, function(child) {
-				return React.cloneElement(child, props(child));
+				if (!React.isValidElement(child)) return child;
+				return React.cloneElement((cast child :ReactElement), props(child));
 			});
 		else
 			return React.Children.map(children, function(child) {
-				return React.cloneElement(child, props);
+				if (!React.isValidElement(child)) return child;
+				return React.cloneElement((cast child :ReactElement), props);
 			});
 	}
 

@@ -105,7 +105,7 @@ class ReactMacro
 		var exprs = switch (c) {
 			case null | { value: null }: [];
 			default:
-				[for (c in tink.hxx.Generator.normalize(c.value)) macro @:pos(c.pos) (${child(c)} :$type)];
+				[for (c in tink.hxx.Generator.normalize(c.value)) macro @:pos(c.pos) ${child(c)}];
 		};
 
 		return {
@@ -251,24 +251,79 @@ class ReactMacro
 
 					switch (Context.typeof(tprops)) {
 						case TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _):
-							for (f in fields)
-								if (f.name == 'children')
-									return TypeTools.toComplexType(f.type);
+							var childType = extractChildrenTypeFromFields(fields);
+							if (childType != null) return childType;
 
 						default:
 					}
 
-				case TFun([{t: TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _)}], _):
-					for (f in fields)
-						if (f.name == 'children')
-							return TypeTools.toComplexType(f.type);
+				case TFun([{t: TAnonymous(_.get().fields => fields)}], _),
+				TFun([{t: TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _)}], _):
+					var childType = extractChildrenTypeFromFields(fields);
+					if (childType != null) return childType;
+
+				case TAbstract(a, params):
+					var childType = extractChildrenTypeFromAbstract(a, params);
+					if (childType != null) return childType;
+
+				case TFun([], _):
+				case TInst(_.toString() => "String", []):
+				case TFun([{t: TMono(_)}], _):
+					// Nothing to do here
 
 				default:
+					Context.warning(
+						'Cannot get children type for ${ExprTools.toString(type)}',
+						type.pos
+					);
 			}
 
 		} catch (e:Dynamic) {}
 
 		return macro :react.ReactComponent.ReactFragment;
+	}
+
+	static function extractChildrenTypeFromAbstract(a:Ref<AbstractType>, params:Array<Type>):ComplexType
+	{
+		switch (a.toString()) {
+			case "Null":
+				switch (params[0]) {
+					case TAbstract(a, params):
+						return extractChildrenTypeFromAbstract(a, params);
+
+					default:
+				};
+
+			case "react.ReactNodeOf":
+				switch (params[0]) {
+					case TType(_.get() => {type: TAnonymous(_.get().fields => fields)}, _):
+						return extractChildrenTypeFromFields(fields);
+
+					case TInst(_.get().fields.get() => fields, _):
+						return extractChildrenTypeFromFields(fields);
+
+					case TAnonymous(_.get().fields => fields):
+						return extractChildrenTypeFromFields(fields);
+
+					default:
+				}
+
+			case "react.ReactNode":
+			default:
+		};
+
+		return null;
+	}
+
+	static function extractChildrenTypeFromFields(
+		fields:Array<{name:String, type:Type}>
+	):Null<ComplexType>
+	{
+		for (f in fields)
+			if (f.name == 'children')
+				return TypeTools.toComplexType(f.type);
+
+		return null;
 	}
 
 	static function extractNeededAttrs(type:Expr)
@@ -459,7 +514,7 @@ class ReactMacro
 		if (ref != null) fields.push({field: 'ref', expr: ref});
 		var obj = {expr: EObjectDecl(fields), pos: pos};
 
-		return macro @:pos(pos) ($obj : react.ReactComponent.ReactFragment);
+		return macro @:pos(pos) ($obj : react.ReactComponent.ReactSingleFragment);
 	}
 
 	static function canUseLiteral(typeInfo:ComponentInfo, ref:Expr)

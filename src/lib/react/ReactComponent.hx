@@ -122,12 +122,5 @@ typedef ReactElement = {
 	#end
 }
 
-typedef ReactSingleFragment = EitherType<
-	ReactElement,
-	EitherType<String, EitherType<Float, Bool>>
->;
-
-typedef ReactFragment = EitherType<
-	ReactSingleFragment,
-	Array<ReactFragment>
->;
+@:pure @:coreType abstract ReactSingleFragment from String from Float from Bool from ReactElement {}
+@:pure @:coreType abstract ReactFragment from ReactSingleFragment from Array<ReactFragment> {}
