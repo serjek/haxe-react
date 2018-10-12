@@ -1,6 +1,15 @@
 package react;
 
-extern interface ReactContext<T>
+import react.ReactComponent.ReactFragment;
+import react.ReactNode;
+
+@:pure @:coreType
+abstract ReactContext<T>
+from IReactContext<T>
+to IReactContext<T>
+to ReactNodeOf<{children:T->ReactFragment}> {}
+
+extern interface IReactContext<T>
 {
 	var Consumer:ReactContext<T>;
 	var Provider:ReactProviderType<T>;
@@ -17,7 +26,13 @@ extern interface ReactContext<T>
 	#end
 }
 
-extern interface ReactProviderType<T>
+@:pure @:coreType
+abstract ReactProviderType<T>
+from IReactProviderType<T>
+to IReactProviderType<T>
+to ReactNodeOf<{value:T}> {}
+
+extern interface IReactProviderType<T>
 {
 	var _context:ReactContext<T>;
 }

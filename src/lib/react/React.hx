@@ -4,6 +4,8 @@ import js.Symbol;
 import react.ReactComponent.ReactElement;
 import react.ReactComponent.ReactFragment;
 import react.ReactComponent.ReactSingleFragment;
+import react.ReactContext;
+import react.ReactNode;
 
 /**
 	https://facebook.github.io/react/docs/react-api.html
@@ -30,6 +32,28 @@ extern class React
 		https://reactjs.org/docs/react-api.html#isvalidelement
 	**/
 	public static function isValidElement(object:ReactFragment):Bool;
+
+	/**
+		https://reactjs.org/docs/context.html#reactcreatecontext
+
+		Creates a `{ Provider, Consumer }` pair.
+		When React renders a context `Consumer`, it will read the current
+		context value from the closest matching `Provider` above it in the tree.
+
+		The `defaultValue` argument is **only** used by a `Consumer` when it
+		does not have a matching Provider above it in the tree. This can be
+		helpful for testing components in isolation without wrapping them.
+
+		Note: passing `undefined` as a `Provider` value does not cause Consumers
+		to use `defaultValue`.
+	**/
+	public static function createContext<TContext>(
+		?defaultValue:TContext,
+		?calculateChangedBits:TContext->TContext->Int
+	):{
+		Provider:ReactProviderType<TContext>,
+		Consumer:ReactContext<TContext>
+	};
 
 	/**
 		https://reactjs.org/docs/react-api.html#reactcreateref
