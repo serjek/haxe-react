@@ -133,7 +133,11 @@ class ReactTypeMacro
 			kind: FFun({
 				args: setStateArgs,
 				ret: macro :Void,
+				#if haxe4preview5
+				expr: null
+				#else
 				expr: macro { super.setState(nextState, callback); }
+				#end
 			}),
 			pos: inClass.pos
 		});
