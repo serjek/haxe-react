@@ -506,7 +506,7 @@ class ReactMacro
 
 		var fields:Array<ObjectField> = [
 			{field: #if (haxe_ver < 4) "@$__hx__$$typeof" #else "$$typeof", quotes: Quoted #end, expr: macro untyped __js__("$$tre")},
-			{field: 'type', expr: type},
+			{field: 'type', expr: macro (${type} : react.ReactNode)},
 			{field: 'props', expr: props}
 		];
 
