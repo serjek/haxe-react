@@ -7,7 +7,7 @@
     "klabz"
   ],
   "releasenote": "See https://github.com/kLabz/haxe-react/blob/next/doc/react-next.md",
-  "version": "1.102.1",
+  "version": "1.102.2",
   "url": "https://github.com/kLabz/haxe-react",
   "classPath": "src/lib",
   "dependencies": {
