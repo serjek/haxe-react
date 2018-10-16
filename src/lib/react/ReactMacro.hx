@@ -100,6 +100,9 @@ class ReactMacro
 		);
 	}
 
+	// TODO: handle typing of array of children:
+	// - children prop typed as Array<Something> => enforce :Something for each item
+	// - undefined children prop type: enforce :ReactFragment for each item
 	static function children(c:tink.hxx.Children, type:ComplexType)
 	{
 		var exprs = switch (c) {
@@ -113,7 +116,7 @@ class ReactMacro
 			compound: switch (exprs) {
 				case []: null;
 				case [v]: macro @:pos(c.pos) (${v}:$type);
-				case a: macro @:pos(c.pos) ($a{a}:$type);
+				case a: macro @:pos(c.pos) $a{a};
 			}
 		};
 	}
