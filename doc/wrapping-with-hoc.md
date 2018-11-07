@@ -23,7 +23,7 @@ meta:
 ```haxe
 import react.ReactComponent;
 import react.ReactMacro.jsx;
-import react.ReactNode;
+import react.ReactType;
 import react.router.ReactRouter;
 import react.router.Route.RouteRenderProps;
 
@@ -35,8 +35,8 @@ private typedef Props = {
 @:wrap(ReactRouter.withRouter)
 @:wrap(uselessHoc(42))
 class MyComponent extends ReactComponentOfProps<Props> {
-	static function uselessHoc(value:Int):ReactNode->ReactNode {
-		return function(Comp:ReactNode) {
+	static function uselessHoc(value:Int):ReactType->ReactType {
+		return function(Comp:ReactType) {
 			return function(props:Any) {
 				return jsx('<$Comp {...props} answer=${value} />');
 			};

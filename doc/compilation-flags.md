@@ -72,7 +72,7 @@ This warnings include:
 
 #### Runtime errors for `null` nodes
 
-`ReactNode` adds a runtime error when a node ends up with a `null` value, which
+`ReactType` adds a runtime error when a node ends up with a `null` value, which
 is usually due to an extern component not resolving to its real value.
 
 ## `-D react_global`

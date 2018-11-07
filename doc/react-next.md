@@ -175,9 +175,9 @@ elements.
 
 `react.React`:
 ```haxe
-public static function createElement(type:CreateElementType, ?attrs:Dynamic, children:haxe.extern.Rest<Dynamic>):ReactFragment;
+public static function createElement(type:CreateElementType, ?attrs:Dynamic, children:haxe.extern.Rest<Dynamic>):ReactElement;
 public static function isValidElement(object:ReactFragment):Bool;
-public static function forwardRef<TProps, TRef>(render:TProps->ReactRef<TRef>->ReactFragment):ReactNode;
+public static function forwardRef<TProps, TRef>(render:TProps->ReactRef<TRef>->ReactFragment):ReactType;
 ```
 
 `react.React.Children`:
@@ -196,26 +196,30 @@ public static function hydrate(element:ReactFragment, container:Element, ?callba
 public static function createPortal(child:ReactFragment, container:Element):ReactFragment;
 ```
 
-## `ReactNode` and `ReactNodeOf`
+## `ReactType` and `ReactTypeOf`
 
-`react.ReactNode` replaces `CreateElementType` and allows:
+`react.ReactType` replaces `CreateElementType` and allows:
 * `String`
 * `Void->ReactFragment`
 * `TProps->ReactFragment`
 * `Class<ReactComponent>`
 * `@:jsxStatic` components
 
-There is also `ReactNodeOf<TProps>`, for cases when you want a component
+There is also `ReactTypeOf<TProps>`, for cases when you want a component
 accepting some specific props.
 
 `CreateElementType`, still in the `react.React` module, is now **deprecated**
-but still available as a proxy to `ReactNode`.
+but still available as a proxy to `ReactType`.
+
+`ReactType` was first implemented as `ReactNode`, but has been renamed in
+`1.103.0` to avoid confusion with ReactJS names. `ReactNode` is temporarily
+available as a proxy to `ReactType`, but will be removed before `2.0.0`.
 
 ## Better integrated features
 
 ### `@:jsxStatic` components
 
-`@:jsxStatic` has been better integrated with `ReactNode`, making it usable
+`@:jsxStatic` has been better integrated with `ReactType`, making it usable
 outside jsx like any other component.
 
 See [Static components](./static-components.md).
@@ -224,7 +228,7 @@ See [Static components](./static-components.md).
 
 `@:wrap` has been improved to support strict typing in jsx, and since it is
 using `@:jsxStatic` under the hood it also benefits from the fixed usage outside
-jsx via `ReactNode` abstract.
+jsx via `ReactType` abstract.
 
 See [Wrapping your components in HOCs](./wrapping-with-hoc.md) for more
 information about wrapping components in HOC.
