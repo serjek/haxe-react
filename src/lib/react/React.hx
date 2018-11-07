@@ -21,7 +21,7 @@ extern class React
 	/**
 		https://reactjs.org/docs/react-api.html#createelement
 	**/
-	public static function createElement(type:ReactType, ?attrs:Dynamic, children:haxe.extern.Rest<Dynamic>):ReactFragment;
+	public static function createElement(type:ReactType, ?attrs:Dynamic, children:haxe.extern.Rest<Dynamic>):ReactElement;
 
 	/**
 		https://reactjs.org/docs/react-api.html#cloneelement

@@ -122,5 +122,14 @@ typedef ReactElement = {
 	#end
 }
 
-@:pure @:coreType abstract ReactSingleFragment from String from Float from Bool from ReactElement {}
-@:pure @:coreType abstract ReactFragment from ReactSingleFragment from Array<ReactFragment> from Array<ReactSingleFragment> {}
+@:pure @:coreType abstract ReactSingleFragment
+	from String
+	from Float
+	from Bool
+	from ReactElement {}
+
+@:pure @:coreType abstract ReactFragment
+	from ReactSingleFragment
+	from Array<ReactFragment>
+	from Array<ReactElement>
+	from Array<ReactSingleFragment> {}

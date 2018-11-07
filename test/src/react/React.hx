@@ -16,7 +16,7 @@ extern class React
 	/**
 		https://facebook.github.io/react/docs/react-api.html#createelement
 	**/
-	public inline static function createElement(type:CreateElementType, ?attrs:Dynamic, children:haxe.extern.Rest<Dynamic>):ReactFragment
+	public inline static function createElement(type:CreateElementType, ?attrs:Dynamic, children:haxe.extern.Rest<Dynamic>):ReactElement
 	{
 		return untyped { type:'NATIVE' };
 	}

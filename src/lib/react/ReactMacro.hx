@@ -54,6 +54,8 @@ class ReactMacro
 	}
 
 	#if macro
+	static var REACT_FRAGMENT_CT = macro :react.ReactComponent.ReactFragment;
+
 	static public function replaceEntities(value:String, pos:Position)
 	{
 		if (value.indexOf('&') < 0)
@@ -100,13 +102,14 @@ class ReactMacro
 		);
 	}
 
-	// TODO: handle typing of array of children:
-	// - children prop typed as Array<Something> => enforce :Something for each item
-	// - undefined children prop type: enforce :ReactFragment for each item
 	static function children(c:tink.hxx.Children, type:ComplexType)
 	{
 		var exprs = switch (c) {
 			case null | { value: null }: [];
+
+			case _ if (type == REACT_FRAGMENT_CT):
+				[for (c in tink.hxx.Generator.normalize(c.value)) macro @:pos(c.pos) (${child(c)}:$type)];
+
 			default:
 				[for (c in tink.hxx.Generator.normalize(c.value)) macro @:pos(c.pos) ${child(c)}];
 		};
@@ -242,6 +245,21 @@ class ReactMacro
 			}
 	}
 
+	static function isReactFragment(type:Null<ComplexType>):Bool {
+		if (type == null) return false;
+
+		return switch (type) {
+			case TPath({name: "StdTypes", sub: "Null", params: [TPType(type)]}):
+				isReactFragment(type);
+
+			case TPath({name: "ReactComponent", sub: "ReactFragment", pack: ["react"]}):
+				true;
+
+			default:
+				false;
+		};
+	}
+
 	static function extractChildrenType(type:Expr):ComplexType
 	{
 		try {
@@ -255,6 +273,7 @@ class ReactMacro
 					switch (Context.typeof(tprops)) {
 						case TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _):
 							var childType = extractChildrenTypeFromFields(fields);
+							if (isReactFragment(childType)) return REACT_FRAGMENT_CT;
 							if (childType != null) return childType;
 
 						default:
@@ -263,10 +282,12 @@ class ReactMacro
 				case TFun([{t: TAnonymous(_.get().fields => fields)}], _),
 				TFun([{t: TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _)}], _):
 					var childType = extractChildrenTypeFromFields(fields);
+					if (isReactFragment(childType)) return REACT_FRAGMENT_CT;
 					if (childType != null) return childType;
 
 				case TAbstract(a, params):
 					var childType = extractChildrenTypeFromAbstract(a, params);
+					if (isReactFragment(childType)) return REACT_FRAGMENT_CT;
 					if (childType != null) return childType;
 
 				case TFun([], _):
@@ -283,7 +304,7 @@ class ReactMacro
 
 		} catch (e:Dynamic) {}
 
-		return macro :react.ReactComponent.ReactFragment;
+		return REACT_FRAGMENT_CT;
 	}
 
 	static function extractChildrenTypeFromAbstract(a:Ref<AbstractType>, params:Array<Type>):ComplexType
@@ -497,7 +518,7 @@ class ReactMacro
 
 	static function body(c:Children)
 	{
-		return macro $a{children(c, macro :ReactFragment).individual};
+		return macro $a{children(c, REACT_FRAGMENT_CT).individual};
 	}
 
 	static var componentsMap:Map<String, ComponentInfo> = new Map();
@@ -517,7 +538,7 @@ class ReactMacro
 		if (ref != null) fields.push({field: 'ref', expr: ref});
 		var obj = {expr: EObjectDecl(fields), pos: pos};
 
-		return macro @:pos(pos) ($obj : react.ReactComponent.ReactSingleFragment);
+		return macro @:pos(pos) ($obj : react.ReactComponent.ReactElement);
 	}
 
 	static function canUseLiteral(typeInfo:ComponentInfo, ref:Expr)
