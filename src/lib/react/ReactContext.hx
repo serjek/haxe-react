@@ -1,13 +1,13 @@
 package react;
 
 import react.ReactComponent.ReactFragment;
-import react.ReactNode;
+import react.ReactType;
 
 @:pure @:coreType
 abstract ReactContext<T>
 from IReactContext<T>
 to IReactContext<T>
-to ReactNodeOf<{children:T->ReactFragment}> {}
+to ReactTypeOf<{children:T->ReactFragment}> {}
 
 extern interface IReactContext<T>
 {
@@ -30,7 +30,7 @@ extern interface IReactContext<T>
 abstract ReactProviderType<T>
 from IReactProviderType<T>
 to IReactProviderType<T>
-to ReactNodeOf<{value:T}> {}
+to ReactTypeOf<{value:T}> {}
 
 extern interface IReactProviderType<T>
 {

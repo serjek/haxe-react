@@ -195,7 +195,7 @@ class ReactMacro
 
 		var t = type.typeof().sure();
 		try {
-			if (!Context.unify(t, Context.getType('react.ReactNode')))
+			if (!Context.unify(t, Context.getType('react.ReactType')))
 			{
 				Context.error(
 					'JSX error: invalid node "${ExprTools.toString(type)}"',
@@ -297,7 +297,7 @@ class ReactMacro
 					default:
 				};
 
-			case "react.ReactNodeOf":
+			case "react.ReactTypeOf":
 				switch (params[0]) {
 					case TType(_.get() => {type: TAnonymous(_.get().fields => fields)}, _):
 						return extractChildrenTypeFromFields(fields);
@@ -311,7 +311,7 @@ class ReactMacro
 					default:
 				}
 
-			case "react.ReactNode":
+			case "react.ReactType":
 			default:
 		};
 
@@ -509,7 +509,7 @@ class ReactMacro
 
 		var fields:Array<ObjectField> = [
 			{field: #if (haxe_ver < 4) "@$__hx__$$typeof" #else "$$typeof", quotes: Quoted #end, expr: macro untyped __js__("$$tre")},
-			{field: 'type', expr: macro (${type} : react.ReactNode)},
+			{field: 'type', expr: macro (${type} : react.ReactType)},
 			{field: 'props', expr: props}
 		];
 

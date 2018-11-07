@@ -109,7 +109,7 @@ typedef ReactSource = {
 }
 
 typedef ReactElement = {
-	type:ReactNode,
+	type:ReactType,
 	props:Dynamic,
 	?key:Dynamic,
 	?ref:Dynamic,

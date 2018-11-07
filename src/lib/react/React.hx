@@ -5,7 +5,7 @@ import react.ReactComponent.ReactElement;
 import react.ReactComponent.ReactFragment;
 import react.ReactComponent.ReactSingleFragment;
 import react.ReactContext;
-import react.ReactNode;
+import react.ReactType;
 
 /**
 	https://facebook.github.io/react/docs/react-api.html
@@ -21,7 +21,7 @@ extern class React
 	/**
 		https://reactjs.org/docs/react-api.html#createelement
 	**/
-	public static function createElement(type:ReactNode, ?attrs:Dynamic, children:haxe.extern.Rest<Dynamic>):ReactFragment;
+	public static function createElement(type:ReactType, ?attrs:Dynamic, children:haxe.extern.Rest<Dynamic>):ReactFragment;
 
 	/**
 		https://reactjs.org/docs/react-api.html#cloneelement
@@ -72,7 +72,7 @@ extern class React
 		If you are using an earlier release of React, use callback refs instead
 		https://reactjs.org/docs/refs-and-the-dom.html#callback-refs
 	**/
-	public static function forwardRef<TProps, TRef>(render:TProps->ReactRef<TRef>->ReactFragment):ReactNode;
+	public static function forwardRef<TProps, TRef>(render:TProps->ReactRef<TRef>->ReactFragment):ReactType;
 
 	/**
 		https://reactjs.org/docs/react-api.html#reactchildren
@@ -122,5 +122,5 @@ extern interface ReactChildren
 }
 
 @:deprecated
-typedef CreateElementType = ReactNode;
+typedef CreateElementType = ReactType;
 
