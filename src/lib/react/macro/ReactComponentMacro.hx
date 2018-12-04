@@ -11,7 +11,8 @@ typedef Builder = ClassType -> Array<Field> -> Array<Field>;
 typedef BuilderWithKey = {?key:String, build:Builder};
 
 class ReactComponentMacro {
-	public static inline var REACT_COMPONENT_BUILDER = "ReactComponent";
+	static public inline var ACCEPTS_MORE_PROPS_META = ":acceptsMoreProps";
+	static public inline var REACT_COMPONENT_BUILDER = "ReactComponent";
 
 	static var builders:Array<BuilderWithKey> = [
 		{build: ReactMacro.buildComponent, key: REACT_COMPONENT_BUILDER},

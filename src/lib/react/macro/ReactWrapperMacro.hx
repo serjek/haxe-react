@@ -7,6 +7,7 @@ import haxe.macro.ExprTools;
 import haxe.macro.Type;
 import haxe.macro.TypeTools;
 import react.jsx.JsxStaticMacro;
+import react.macro.ReactComponentMacro.ACCEPTS_MORE_PROPS_META;
 
 class ReactWrapperMacro
 {
@@ -32,6 +33,10 @@ class ReactWrapperMacro
 		wrappersMeta.reverse();
 
 		var publicProps = extractPublicProps(inClass.meta, wrappersMeta[0].pos);
+		if (publicProps != null && inClass.meta.has(ACCEPTS_MORE_PROPS_META)) {
+			publicProps = macro :react.ReactComponent.ACCEPTS_MORE_PROPS<$publicProps>;
+		}
+
 		var fieldType = publicProps == null
 			? null
 			: macro :$publicProps->react.ReactComponent.ReactFragment;

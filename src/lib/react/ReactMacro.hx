@@ -12,6 +12,7 @@ import tink.hxx.StringAt;
 import react.jsx.HtmlEntities;
 import react.jsx.JsxStaticMacro;
 import react.macro.MacroUtil;
+import react.macro.ReactComponentMacro.ACCEPTS_MORE_PROPS_META;
 
 using tink.MacroApi;
 
@@ -148,7 +149,10 @@ class ReactMacro
 						switch (Context.typeof(type)) {
 							case TType(_.get().type => TAnonymous(_.get() => {
 								status: AClassStatics(_.get() => t)
-							}), _) if (t.meta.has(':acceptsMoreProps')):
+							}), _) if (t.meta.has(ACCEPTS_MORE_PROPS_META)):
+								return value;
+
+							case TFun([{t: TType(_.toString() => "react.ACCEPTS_MORE_PROPS", _)}], _):
 								return value;
 
 							default:
@@ -279,7 +283,7 @@ class ReactMacro
 						default:
 					}
 
-				case TFun([{t: TAnonymous(_.get().fields => fields)}], _),
+				case TFun([{t: _ => Context.follow(_) => TAnonymous(_.get().fields => fields)}], _),
 				TFun([{t: TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _)}], _):
 					var childType = extractChildrenTypeFromFields(fields);
 					if (isReactFragment(childType)) return REACT_FRAGMENT_CT;

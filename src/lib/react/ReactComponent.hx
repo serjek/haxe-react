@@ -103,6 +103,10 @@ extern class ReactComponentOf<TProps:{}, TState:{}>
 	#end
 }
 
+// Used internally to make @:acceptsMoreProps and @:wrap compatible
+// Needs to be tested extensively before encouraging manual use
+typedef ACCEPTS_MORE_PROPS<TProps:{}> = TProps;
+
 typedef ReactSource = {
 	fileName:String,
 	lineNumber:Int
