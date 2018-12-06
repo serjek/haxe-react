@@ -284,6 +284,25 @@ class ReactMacroTest
 			e.props,
 			['title', 'children'], ["a &lt; b", "hello &world; &lt;3"]
 		);
+
+		e = jsx('<div>&lt;div/&gt;</div>');
+		assertHasProps(
+			e.props,
+			['children'], ["<div/>"]
+		);
+
+		var nbsp = String.fromCharCode(160);
+		e = jsx('<div>hello&nbsp;&lt;3</div>');
+		assertHasProps(
+			e.props,
+			['children'], ['hello$nbsp<3']
+		);
+
+		e = jsx('<div>hello&nbsp;&nbsp;&lt;3</div>');
+		assertHasProps(
+			e.props,
+			['children'], ['hello$nbsp$nbsp<3']
+		);
 	}
 
 	@Test
