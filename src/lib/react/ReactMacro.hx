@@ -89,11 +89,12 @@ class ReactMacro
 		var result = '';
 		var index = 0;
 
-		while (reEntity.matchSub(value, index))
+		while (reEntity.match(value.substr(index)))
 		{
-			result += reEntity.matchedLeft();
+			var left = reEntity.matchedLeft();
+			result += left;
 			var entity = reEntity.matched(0);
-			index = result.length + entity.length;
+			index += left.length + entity.length;
 
 			result += switch (HtmlEntities.map[entity]) {
 				case null:
