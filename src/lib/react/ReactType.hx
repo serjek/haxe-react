@@ -106,7 +106,7 @@ abstract ReactType(Node) to Node
 	}
 }
 
-abstract ReactTypeOf<TProps>(ReactNode) to ReactNode {
+abstract ReactTypeOf<TProps>(ReactType) to ReactType {
 	private inline function new(node:ReactType) this = node;
 
 	#if !macro
