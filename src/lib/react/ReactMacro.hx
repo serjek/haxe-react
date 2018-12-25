@@ -9,6 +9,7 @@ import haxe.macro.TypeTools;
 import tink.hxx.Node;
 import tink.hxx.Parser;
 import tink.hxx.StringAt;
+import react.jsx.AriaAttributes;
 import react.jsx.HtmlEntities;
 import react.jsx.JsxStaticMacro;
 import react.macro.MacroUtil;
@@ -180,6 +181,18 @@ class ReactMacro
 								return value;
 
 							default:
+								#if !react_jsx_no_data_for_components
+								// Always allow data- props
+								if (StringTools.startsWith(field, "data-")) return value;
+								#end
+
+								#if (!react_jsx_no_aria || !react_jsx_no_aria_for_components)
+								// Always allow valid aria- attributes
+								if (StringTools.startsWith(field, "aria-")) {
+									var ct = AriaAttributes.map[field];
+									if (ct != null) return macro @:pos(value.pos) (${value} :$ct);
+								}
+								#end
 						}
 					}
 				}
@@ -241,7 +254,19 @@ class ReactMacro
 		}
 
 		return isHtml
-			? function(_, e:Expr) return e
+			? function(name:StringAt, value:Expr) {
+				#if !react_jsx_no_aria
+				// Type valid aria- attributes
+				// TODO: consider displaying warning for unknown `aria-` props
+				var field = name.value;
+				if (StringTools.startsWith(field, "aria-")) {
+					var ct = AriaAttributes.map[field];
+					if (ct != null) return macro @:pos(value.pos) (${value} :$ct);
+				}
+				#end
+
+				return value;
+			}
 			: switch (t) {
 				case TFun(args, _):
 					switch (args) {
