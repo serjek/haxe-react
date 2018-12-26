@@ -3,6 +3,7 @@ package react.jsx;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
+import react.macro.MacroUtil;
 
 using haxe.macro.Tools;
 
@@ -161,25 +162,22 @@ class JsxStaticMacro
 	{
 		return switch(extractMeta(meta, name)) {
 			case NoMeta: null;
-			case WithParams(_, params): extractMetaName(params.pop());
+
+			case WithParams(_, params):
+				var param = params[0];
+				var name = MacroUtil.extractMetaString(param);
+				if (name == null) {
+					Context.fatalError(
+						'@${META_NAME}: invalid parameter. Expected static function name.',
+						param.pos
+					);
+				}
+				name;
+
 			case NoParams(meta):
 				Context.fatalError(
 					'Parameter required for @${META_NAME}(nameOfStaticFunction)',
 					meta.pos
-				);
-		};
-	}
-
-	static public function extractMetaName(metaExpr:Expr):String
-	{
-		return switch (metaExpr.expr) {
-			case EConst(CString(str)): str;
-			case EConst(CIdent(ident)): ident;
-
-			default:
-				Context.fatalError(
-					'@${META_NAME}: invalid parameter. Expected static function name.',
-					metaExpr.pos
 				);
 		};
 	}

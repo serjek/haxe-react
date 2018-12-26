@@ -86,4 +86,13 @@ class MacroUtil {
 
 		return null;
 	}
+
+	static public function extractMetaString(metaExpr:Expr):Null<String>
+	{
+		return switch (metaExpr.expr) {
+			case EConst(CString(str)): str;
+			case EConst(CIdent(ident)): ident;
+			default: null;
+		};
+	}
 }

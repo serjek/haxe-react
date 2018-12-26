@@ -13,6 +13,7 @@ import react.jsx.AriaAttributes;
 import react.jsx.HtmlEntities;
 import react.jsx.JsxStaticMacro;
 import react.macro.MacroUtil;
+import react.macro.PropsValidator;
 import react.macro.ReactComponentMacro.ACCEPTS_MORE_PROPS_META;
 
 using tink.MacroApi;
@@ -175,7 +176,32 @@ class ReactMacro
 							case TType(_.get().type => TAnonymous(_.get() => {
 								status: AClassStatics(_.get() => t)
 							}), _) if (t.meta.has(ACCEPTS_MORE_PROPS_META)):
-								return value;
+								var validators = t.meta.extract(ACCEPTS_MORE_PROPS_META);
+								if (validators[0].params.length > 0) {
+									for (v in validators[0].params) {
+										var k = MacroUtil.extractMetaString(v);
+										if (k == null) {
+											Context.error(
+												'Unexpected argument. Expected no argument or '
+												+ 'an identifier to a registered props validator',
+												v.pos
+											);
+										}
+
+										var validator = PropsValidator.get(k);
+										if (validator == null) {
+											Context.error(
+												'Error: cannot find props validator "$k"',
+												v.pos
+											);
+										} else {
+											var validatedValue = validator(field, value);
+											if (validatedValue != null) return validatedValue;
+										}
+									}
+								} else {
+									return value;
+								}
 
 							case TFun([{t: TType(_.toString() => "react.ACCEPTS_MORE_PROPS", _)}], _):
 								return value;

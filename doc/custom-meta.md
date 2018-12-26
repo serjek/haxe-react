@@ -65,3 +65,66 @@ typedef Props = { /* define your props here */ }
 @:acceptsMoreProps
 class MyComponent extends ReactComponentOfProps<Props> {}
 ```
+
+### Custom props validators with `@:acceptsMoreProps('validator_key')`
+
+(New in react-next 1.105.0)
+
+Sometimes, especially when dealing with externs, you want to be able to validate
+props in a way that is not really possible with haxe type system.
+
+You can register custom props validator (at macro level) for your component with
+an initialization macro in your `.hxml`:
+
+```
+--macro pack.InitMacro.registerValidator()
+```
+
+This macro will look like this:
+
+```haxe
+package pack;
+
+import haxe.macro.Expr;
+import react.macro.PropsValidator;
+
+class InitMacro {
+	// Initialization macro doing the registration
+	public static function registerValidator() {
+		PropsValidator.register('my_very_unique_key', validator);
+	}
+
+	// The actual validator
+	public static function validator(name:String, expr:Expr):Null<Expr> {
+		if (some_condition) {
+			// Ok, I recognize this prop!
+			// Add an `ECheckType` around the expr to validate the props typing
+			// Note: just return `expr` if you don't want to check its type
+			var expectedType:ComplexType = macro :ExpectedType;
+			return macro @:pos(expr.pos) (${expr}:$expectedType);
+		}
+
+		// This prop isn't known by the validator, let jsx throw the usual error
+		return null;
+	}
+}
+```
+
+Your component can the use `@:acceptsMoreProps` to tell the jsx macro how to
+validate extra props:
+
+```haxe
+private typedef Props = {
+	var normalProp:String;
+	@:optional var normalOptionalProp:Int;
+}
+
+@:acceptsMoreProps('my_very_unique_key')
+class MyComponent extends ReactComponentOfProps<Props> {
+	// ...
+}
+```
+
+Note that you will have to avoid validator key conflict yourself, so make sure
+your keys will likely be unique (by namespacing, for example), especially if you
+use this feature in a library.
