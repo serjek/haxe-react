@@ -33,7 +33,6 @@ happy to consider them.
 
 * PureComponent
 * Runtime warnings documentation
-* New react APIs: refs, context
 * Update README.md
 * Proper migration guide (based off [react #next doc](./react-next.md))
 * Test (and potentially update) samples
