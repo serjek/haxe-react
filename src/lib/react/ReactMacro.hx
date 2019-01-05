@@ -590,8 +590,28 @@ class ReactMacro
 					expr: body.bind(c.children).bounce()
 				}], null).at(target.pos);
 
-			default:
-				c.pos.error('jsx does not support control structures'); //already disabled at parser level anyway
+			case CLet(defs, c):
+				var vars:Array<Var> = [];
+				function add(name, value)
+				  vars.push({
+					name: name,
+					type: null,
+					expr: value,
+				  });
+
+				for (d in defs) switch d {
+				  case Empty(a): a.pos.error('empty attributes not allowed on <let>');
+				  case Regular(a, v):
+					add(a.value, v);
+				  case Splat(e):
+					var tmp = MacroApi.tempName();
+					add(tmp, e);
+					for (f in e.typeof().sure().getFields().sure())
+					  if (f.isPublic && !f.kind.match(FMethod(MethMacro)))
+						add(f.name, macro @:pos(e.pos) $p{[tmp, f.name]});
+				}
+
+				[EVars(vars).at(c.pos), body.bind(c).bounce()].toBlock(c.pos);
 		}
 	}
 
