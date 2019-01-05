@@ -11,6 +11,9 @@ import AssertTools.assertHasProps;
 class CompBasic extends ReactComponent {}
 
 @:ignoreEmptyRender
+class CompBasicProps extends ReactComponentOfProps<{a:Int}> {}
+
+@:ignoreEmptyRender
 class CompDefaults extends ReactComponent {
 	static public var defaultProps = {
 		defA:'A',
@@ -317,6 +320,7 @@ class ReactMacroTest
 							<div>Foo</div>
 							<for {j in 0...i}>
 								<p>Test ${inner += j}</p>
+								<CompBasicProps a=${j} />
 							</for>
 						<else>
 							<switch {i}>
@@ -327,6 +331,7 @@ class ReactMacroTest
 									<button />
 								<case {v}>
 									{counter+=v}
+									<CompBasicProps a=${v} />
 							</switch>
 						</if>
 					</div>
