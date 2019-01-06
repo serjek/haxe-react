@@ -521,7 +521,7 @@ class ReactMacro
 							switch (name.value)
 							{
 								case 'key': key = expr;
-								case 'ref': ref = expr;
+								case 'ref' if (n.name.value != 'react.Fragment'): ref = expr;
 								default: add(name, value);
 							}
 					}
