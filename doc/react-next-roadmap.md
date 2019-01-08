@@ -16,7 +16,6 @@ happy to consider them.
 
 ## Features needing improvements / new features
 
-* `@:jsxStatic`: enforce typing of argument (with proper errors when failing)
 * Jsx macro performances improvement to reduce compilation time
 * Implement missing React APIs (see #11)
 * Update react events handling
