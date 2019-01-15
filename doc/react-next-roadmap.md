@@ -16,11 +16,11 @@ happy to consider them.
 
 ## Features needing improvements / new features
 
-* New react context API with a sample app
 * Jsx macro performances improvement (working on it) to reduce compilation time
 * `@:jsxStatic`: enforce typing of argument (with proper errors when failing)
 * Generate `propTypes` from components' `TProps` when compiling with `-debug`
  and `-D react-generate-proptypes`
+* Update react events handling
 
 ### Some more things that **may** be added too
 
