@@ -16,10 +16,9 @@ happy to consider them.
 
 ## Features needing improvements / new features
 
-* Jsx macro performances improvement (working on it) to reduce compilation time
 * `@:jsxStatic`: enforce typing of argument (with proper errors when failing)
-* Generate `propTypes` from components' `TProps` when compiling with `-debug`
- and `-D react-generate-proptypes`
+* Jsx macro performances improvement to reduce compilation time
+* Implement missing React APIs (see #11)
 * Update react events handling
 
 ### Some more things that **may** be added too
@@ -28,6 +27,8 @@ happy to consider them.
 * Some helpers to create HOCs (which can then be used with `@:wrap`)
 * More stability with both runtime warnings and hot reloading enabled
 * Some improvements for `Partial<T>`
+* Generate `propTypes` from components' `TProps` when compiling with `-debug`
+ and `-D react-generate-proptypes`
 
 ## Documentation
 
