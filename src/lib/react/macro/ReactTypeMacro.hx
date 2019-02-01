@@ -1,5 +1,6 @@
 package react.macro;
 
+import haxe.macro.TypeTools;
 import haxe.macro.ComplexTypeTools;
 import haxe.macro.Context;
 import haxe.macro.Expr;
@@ -10,6 +11,7 @@ class ReactTypeMacro
 {
 	static public inline var ALTER_SIGNATURES_BUILDER = 'AlterSignatures';
 	static public inline var ENSURE_RENDER_OVERRIDE_BUILDER = 'EnsureRenderOverride';
+	static public inline var CHECK_GET_DERIVED_STATE_BUILDER = 'CheckDerivedState';
 	static public inline var IGNORE_EMPTY_RENDER_META = ':ignoreEmptyRender';
 
 	#if macro
@@ -17,24 +19,15 @@ class ReactTypeMacro
 	{
 		if (inClass.isExtern) return fields;
 
-		var propsType:ComplexType = macro :Dynamic;
-		var stateType:ComplexType = macro :Dynamic;
-
-		switch (inClass.superClass)
-		{
-			case {params: params, t: _.toString() => cls}
-			if (cls == 'react.ReactComponentOf' || cls == 'react.PureComponentOf'):
-				propsType = TypeTools.toComplexType(params[0]);
-				stateType = TypeTools.toComplexType(params[1]);
-
-			default:
-		}
+		var types = MacroUtil.extractComponentTypes(inClass);
+		var tprops = types.tprops == null ? macro :Dynamic : types.tprops;
+		var tstate = types.tstate == null ? macro :Dynamic : types.tstate;
 
 		// Only alter setState signature for non-dynamic states
-		switch (ComplexTypeTools.toType(stateType))
+		switch (ComplexTypeTools.toType(tstate))
 		{
 			case TType(_) if (!hasSetState(fields)):
-				addSetStateType(fields, inClass, propsType, stateType);
+				addSetStateType(fields, inClass, tprops, tstate);
 
 			default:
 		}
@@ -52,6 +45,42 @@ class ReactTypeMacro
 					+ 'override `render` from `ReactComponent`.',
 					inClass.pos
 				);
+
+		return fields;
+	}
+
+	public static function checkGetDerivedState(inClass:ClassType, fields:Array<Field>):Array<Field>
+	{
+		if (!inClass.isExtern) {
+			var getDerived = MacroUtil.getField(fields, "getDerivedStateFromProps");
+
+			if (getDerived != null) {
+				switch (getDerived.kind)
+				{
+					case FFun(fun) if (Lambda.has(getDerived.access, AStatic)):
+						var types = MacroUtil.extractComponentTypes(inClass);
+						var tprops = types.tprops == null ? macro :Dynamic : types.tprops;
+						var tstate = types.tstate == null ? macro :Dynamic : types.tstate;
+
+						var expected = macro :$tprops->$tstate->react.Partial<$tstate>;
+						var ct = TypeTools.toComplexType(MacroUtil.functionToType(fun));
+
+						Context.typeof(macro @:pos(getDerived.pos) {
+							var a:$ct = null;
+							var b:$expected = a;
+						});
+
+					default:
+						Context.warning(
+							'Component ${inClass.name}: '
+							+ 'Field getDerivedStateFromProps should be a static function '
+							+ 'with `props` and `prevState` as arguments.',
+							getDerived.pos
+						);
+
+				}
+			}
+		}
 
 		return fields;
 	}

@@ -1,11 +1,17 @@
 package react.macro;
 
 import haxe.macro.Context;
+import haxe.macro.ComplexTypeTools;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 import haxe.macro.TypeTools;
 
 using haxe.macro.Tools;
+
+typedef ComponentTypes = {
+	@:optional var tprops:ComplexType;
+	@:optional var tstate:ComplexType;
+}
 
 class MacroUtil {
 	static public function isEmpty(type:ComplexType):Bool
@@ -20,6 +26,24 @@ class MacroUtil {
 			default:
 				false;
 		};
+	}
+
+	// TODO: add some cache
+	static public function extractComponentTypes(inClass:ClassType):ComponentTypes
+	{
+		var ret = {tprops: null, tstate: null};
+
+		switch (inClass.superClass)
+		{
+			case {params: params, t: _.toString() => cls}
+			if (cls == 'react.ReactComponentOf' || cls == 'react.PureComponentOf'):
+				ret.tprops = TypeTools.toComplexType(params[0]);
+				ret.tstate = TypeTools.toComplexType(params[1]);
+
+			default:
+		}
+
+		return ret;
 	}
 
 	static public function testType(t:Type):Bool
@@ -93,6 +117,20 @@ class MacroUtil {
 			case EConst(CString(str)): str;
 			case EConst(CIdent(ident)): ident;
 			default: null;
+		};
+	}
+
+	static public function functionToType(fun:haxe.macro.Function):Type
+	{
+		return TFun(fun.args.map(funArgToTFunArg), ComplexTypeTools.toType(fun.ret));
+	}
+
+	static public function funArgToTFunArg(arg:FunctionArg):{t:Type, opt:Bool, name:String}
+	{
+		return {
+			t: ComplexTypeTools.toType(arg.type),
+			opt: arg.opt,
+			name: arg.name
 		};
 	}
 }

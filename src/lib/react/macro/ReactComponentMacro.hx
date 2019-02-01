@@ -25,6 +25,10 @@ class ReactComponentMacro {
 		{build: ReactTypeMacro.ensureRenderOverride, key: ReactTypeMacro.ENSURE_RENDER_OVERRIDE_BUILDER},
 		#end
 
+		#if debug
+		{build: ReactTypeMacro.checkGetDerivedState, key: ReactTypeMacro.CHECK_GET_DERIVED_STATE_BUILDER},
+		#end
+
 		#if (debug && react_runtime_warnings)
 		{build: ReactDebugMacro.buildComponent, key: ReactDebugMacro.REACT_DEBUG_BUILDER}
 		#end
