@@ -28,8 +28,13 @@ typedef ReactComponentOfPropsAndState<TProps:{}, TState:{}> = ReactComponentOf<T
 @:autoBuild(react.macro.ReactComponentMacro.build())
 extern class ReactComponentOf<TProps:{}, TState:{}>
 {
+	#if haxe4
+	final props:TProps;
+	final state:TState;
+	#else
 	var props(default, null):TProps;
 	var state(default, null):TState;
+	#end
 
 	#if react_deprecated_context
 	// It's better to define it in your ReactComponent subclass as needed, with the right typing.

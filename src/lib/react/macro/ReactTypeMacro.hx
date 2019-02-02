@@ -162,7 +162,7 @@ class ReactTypeMacro
 			kind: FFun({
 				args: setStateArgs,
 				ret: macro :Void,
-				#if haxe4preview5
+				#if haxe4
 				expr: null
 				#else
 				expr: macro { super.setState(nextState, callback); }
