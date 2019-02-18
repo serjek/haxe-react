@@ -37,13 +37,19 @@ class JsxStaticMacro
 		if (inClass.meta.has(META_NAME))
 		{
 			var fields = Context.getBuildFields();
-			for (f in fields) if (f.name == FIELD_NAME) return null;
-
 			var proxyName = extractMetaString(inClass.meta, META_NAME);
 			if (proxyName == null) return null;
 
 			var metaPos = inClass.meta.extract(META_NAME)[0].pos;
 			var pos = inClass.meta.extract(META_NAME)[0].params[0].pos;
+
+			for (f in fields) {
+				if (f.name == FIELD_NAME) return null;
+
+				#if (haxe4 && !react_no_auto_jsx)
+				if (f.name == proxyName) react.jsx.JsxMacro.wrapMarkupInField(f);
+				#end
+			}
 
 			fields.push({
 				access: [APublic, AStatic],

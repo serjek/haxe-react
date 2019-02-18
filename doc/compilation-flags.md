@@ -127,5 +127,16 @@ type of `Dynamic`. This behavior can be disabled with
 explicitely accepted by the components (which is currently not that easy in
 Haxe).
 
+## `-D react_no_auto_jsx` (haxe 4 only)
+
+Haxe 4 introduces inline xml-like markup, allowing us to drop the strings in our
+`jsx(...)` expressions. By default, `react-next` goes one step further and
+automatically wraps all xml markup in `render` (and also `renderSomething`)
+functions in classes extending `ReactComponent` in a call to `ReactMacro.jsx()`,
+as well as in the methods used in `@:jsxStatic(myMethod)`.
+
+This may not be a behavior that suits you if you use xml markup for something
+else in there; in this case you can disable it with this compilation flag.
+
 [affd6e4a]: https://github.com/kLabz/haxe-react/commit/affd6e4a
 [aria-specs]: https://www.w3.org/TR/wai-aria-1.1/#state_prop_def
