@@ -48,7 +48,11 @@ class JsxStaticMacro
 			fields.push({
 				access: [APublic, AStatic],
 				name: FIELD_NAME,
+				#if react_check_jsxstatic_type
 				kind: FVar(macro :react.ReactType, macro @:pos(pos) $i{proxyName}),
+				#else
+				kind: FVar(null, macro $i{proxyName}),
+				#end
 				doc: null,
 				meta: null,
 				pos: metaPos

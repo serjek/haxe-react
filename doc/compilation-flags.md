@@ -105,6 +105,10 @@ public props type of your component wrapped with `@:wrap` so that jsx type
 checking can be done.
 See [Wrapping your components in HOCs](./wrapping-with-hoc.md).
 
+## `-D react_check_jsxstatic_type`
+
+Enable prototype type checker for `@:jsxStatic` expressions.
+
 ## `-D react_jsx_no_aria`
 
 Since [`affd6e4a`][affd6e4a], `aria-*` props are type-checked against their

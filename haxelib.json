@@ -7,7 +7,7 @@
     "klabz"
   ],
   "releasenote": "Type-safe @:jsxStatic and getDerivedStateFromProps + update for haxe 4.0.0 rc1",
-  "version": "1.108.0",
+  "version": "1.108.1",
   "url": "https://github.com/kLabz/haxe-react",
   "classPath": "src/lib",
   "dependencies": {
