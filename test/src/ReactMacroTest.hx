@@ -28,6 +28,30 @@ class CompDefaults extends ReactComponent {
 	}
 }
 
+enum SomeStatus {
+	Loading;
+	Done(data:String);
+}
+
+typedef StateWithEnum = {
+	var status:SomeStatus;
+}
+
+@:ignoreEmptyRender
+class CompStateWithEnum extends ReactComponentOfState<StateWithEnum> {
+	// Just checking compilation for now
+	function test() {
+		setState({status: Loading});
+		setState({status: Loading}, function() {});
+		setState(function(_) return {status: Loading});
+		setState(function(_) return {status: Loading}, function() {});
+		setState(function(s) return {status: s.status});
+		setState(function(s) return {status: s.status}, function() {});
+		setState(function(_, _) return {status: Loading});
+		setState(function(_, _) return {status: Loading}, function() {});
+	}
+}
+
 extern class CompExtern extends ReactComponent {}
 
 
