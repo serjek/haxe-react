@@ -43,7 +43,16 @@ class ReactMacro
 				default: expr.reject('only one node allowed here');
 			};
 
-		return children(tink.hxx.Parser.parseRoot(expr, { fragment: 'react.Fragment', defaultExtension: 'html', treatNested: children }));
+		return children(
+			tink.hxx.Parser.parseRoot(
+				expr,
+				{
+					fragment: 'react.Fragment',
+					defaultExtension: 'html',
+					treatNested: function(c) return children.bind(c).bounce()
+				}
+			)
+		);
 	}
 
 	public static macro function getExtraProps(props:Expr):Expr {
