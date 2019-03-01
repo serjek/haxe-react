@@ -293,6 +293,9 @@ class ReactMacro
 				return value;
 			}
 			: switch (t) {
+				case TAbstract(_.toString() => "react.ReactTypeOf", [_.toComplex() => tprops]):
+					propsFor(macro @:pos(type.pos) (null:$tprops));
+
 				case TFun(args, _):
 					switch (args) {
 						case []:
