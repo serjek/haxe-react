@@ -607,7 +607,8 @@ class ReactMacro
 
 	static function body(c:Children)
 	{
-		return macro $a{children(c, REACT_FRAGMENT_CT).individual};
+		if (c == null) return macro null;
+		return macro ${children(c, REACT_FRAGMENT_CT).compound};
 	}
 
 	static var componentsMap:Map<String, ComponentInfo> = new Map();
