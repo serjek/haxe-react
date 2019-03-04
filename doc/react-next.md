@@ -24,14 +24,23 @@ branch uses [`tink_hxx`][tink_hxx] to handle jsx.
 The change of parser implies some little syntax changes:
 * `prop=$42` and such are no longer allowed, use `prop=${42}` or `prop={42}`
 * `prop=${true}` can now be expressed as simply `prop`
-
-### Misc changes
-
-Other changes introduced by tink_hxx:
 * Props are type-checked against the component's `TProps`
 * You cannot pass props not recognized by the target component
-* [With tink_hxx 0.17.0+] You can use `${/* comments */}` / `{/* comments */}`
- in jsx to add comments that won't be included in generated javascript
+* Haxe 4 inline markup is supported and can replace the jsx string
+* Hxx's [control structures][hxx-control-structures]
+
+#### Comments in jsx
+
+You can use `${/* comments */}` / `{/* comments */}` in jsx to add comments
+that won't be included in generated javascript.
+
+You can also comment props with `//` inside the opening tag:
+```jsx
+<input
+	type="text"
+	// onClick={someFunction}
+/>
+```
 
 ### Further changes added in `#next`
 
@@ -123,6 +132,23 @@ some of them are not passed in a jsx "call".
 * If you use the spread operator on the props of a component, this test is not
 executed (it becomes hard and even sometimes impossible to know what props are
 passed through the spread).
+
+#### [`affd6e4`][affd6e4] Jsx: handle data- and aria- props
+
+`aria-` props are type-checked against their [specification][aria-specs], and
+enums are provided where necessary (see `react.jsx.AriaAttributes`). They are
+enabled by default for both html elements and react components. You can disable
+`aria-` props entirely with `-D react_jsx_no_aria`, or only disable it for react
+components with `-D react_jsx_no_aria_for_components`.
+
+`data-` props are enabled by default for react components (all unknown props are
+already accepted for html elements), with a type of `Dynamic`. They can be
+disabled with `-D react_jsx_no_data_for_components`.
+
+#### [`a96398a`][a96398a] + [`8dd1f2b`][8dd1f2b] Jsx: support string interpolation in attributes
+
+Add support for string interpolation in attributes:
+`<Comp foo="hello ${target}" />`.
 
 ## ReactComponentOf cleanup
 
@@ -312,6 +338,10 @@ more accurate than these).
 <!-- Haxelib / GitHub projects -->
 [tink_hxx]: https://github.com/haxetink/tink_hxx
 [prop-types]: https://github.com/facebook/prop-types
+[hxx-control-structures]: https://github.com/haxetink/tink_hxx#control-structures
+
+<!-- MDN resources -->
+[aria-specs]: https://www.w3.org/TR/wai-aria-1.1/#state_prop_def
 
 <!-- Commits improving jsx -->
 [6e8fe8d]: https://github.com/kLabz/haxe-react/commit/6e8fe8d
@@ -321,6 +351,9 @@ more accurate than these).
 [425cb6c]: https://github.com/kLabz/haxe-react/commit/425cb6c
 [150b76d]: https://github.com/kLabz/haxe-react/commit/150b76d
 [d2e8dd3]: https://github.com/kLabz/haxe-react/commit/d2e8dd3
+[affd6e4]: https://github.com/kLabz/haxe-react/commit/affd6e4
+[a96398a]: https://github.com/kLabz/haxe-react/commit/a96398a
+[8dd1f2b]: https://github.com/kLabz/haxe-react/commit/8dd1f2b
 
 <!-- Commits improving debug tools -->
 [98233c3]: https://github.com/kLabz/haxe-react/commit/98233c3
