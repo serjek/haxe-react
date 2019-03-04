@@ -113,7 +113,14 @@ class ReactMacroTest
 	{
 		var e = jsx('<$CompRenderProp>${function(value:Int) { return null; }}</$CompRenderProp>');
 		Assert.areEqual(CompRenderProp, e.type);
-		// TODO: further check; should fail at compile time atm
+
+		#if haxe4
+		var e = jsx('<$CompRenderProp>${(value:Int) -> null}</$CompRenderProp>');
+		Assert.areEqual(CompRenderProp, e.type);
+
+		var e = jsx('<$CompRenderProp>${value -> null}</$CompRenderProp>');
+		Assert.areEqual(CompRenderProp, e.type);
+		#end
 	}
 
 	@Test
