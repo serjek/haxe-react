@@ -6,8 +6,8 @@
   "contributors": [
     "klabz"
   ],
-  "releasenote": "JSX: better enforcement of ReactTypeOf<TProps>",
-  "version": "1.111.0",
+  "releasenote": "JSX: interpolate attributes",
+  "version": "1.112.0",
   "url": "https://github.com/kLabz/haxe-react",
   "classPath": "src/lib",
   "dependencies": {
