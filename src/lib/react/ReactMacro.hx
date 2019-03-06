@@ -2,6 +2,7 @@ package react;
 
 #if macro
 import haxe.ds.Option;
+import haxe.macro.ComplexTypeTools;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
@@ -24,6 +25,7 @@ typedef ObjectField = {field:String, expr:Expr};
 
 typedef ComponentInfo = {
 	isExtern:Bool,
+	tprops:Null<ComplexType>,
 	props:Array<ObjectField>
 }
 
@@ -558,6 +560,8 @@ class ReactMacro
 						if (defaultProps != null)
 						{
 							var obj = {expr: EObjectDecl(defaultProps), pos: pos};
+							if (typeInfo.tprops != null)
+								obj = {expr: ECheckType(obj, typeInfo.tprops), pos: pos};
 							spread.unshift(obj);
 						}
 					}
@@ -710,6 +714,25 @@ class ReactMacro
 		if (spread.length == 0) return props;
 		var last = spread[spread.length - 1];
 		return switch (last.expr) {
+			case ECheckType({expr: EObjectDecl(fields)}, ct):
+				spread.pop();
+				var newProps = props.concat(fields.map(function(f) {
+					var fname = f.field;
+					var fct = TypeTools.toComplexType(
+						Context.typeof(
+							macro @:pos(f.expr.pos) (null :$ct).$fname
+						)
+					);
+
+					return {
+						expr: {expr: ECheckType(f.expr, fct), pos: f.expr.pos},
+						field: fname,
+						#if (haxe_ver >= 4) quotes: f.quotes #end
+					}
+				}));
+				// push props and recurse in case another literal object is in the list
+				getSpreadProps(spread, newProps);
+
 			case EObjectDecl(fields):
 				spread.pop();
 				var newProps = props.concat(fields);
@@ -745,23 +768,44 @@ class ReactMacro
 	static function storeComponentInfos(fields:Array<Field>, inClass:ClassType, pos:Position)
 	{
 		var key = getClassKey(inClass);
+
 		for (field in fields)
 			if (field.name == 'defaultProps')
 			{
 				switch (field.kind) {
-					case FieldType.FVar(_, _.expr => EObjectDecl(props)):
+					case FieldType.FVar(ct, _.expr => EObjectDecl(props)):
+						if (ct == null) {
+							var types = MacroUtil.extractComponentTypes(inClass);
+							var tprops = TypeTools.toComplexType(
+								Context.follow(ComplexTypeTools.toType(types.tprops))
+							);
+
+							ct = switch (tprops) {
+								case TPath({name: "Dynamic", params: [], pack: []}): macro :Dynamic;
+								default: macro :react.Partial<$tprops>;
+							};
+						} else {
+							ct = TypeTools.toComplexType(
+								Context.follow(ComplexTypeTools.toType(ct))
+							);
+						}
+
 						componentsMap.set(key, {
 							isExtern: inClass.isExtern,
+							tprops: ct,
 							props: props.copy()
 						});
+
 						return;
 					default:
 						break;
 				}
 			}
+
 		componentsMap.set(key, {
-			props:null,
-			isExtern:inClass.isExtern
+			props: null,
+			tprops: null,
+			isExtern: inClass.isExtern
 		});
 	}
 
@@ -778,6 +822,7 @@ class ReactMacro
 				for (prop in attrs) if (prop.field == name) return false;
 				return true;
 			});
+
 		return null;
 	}
 
