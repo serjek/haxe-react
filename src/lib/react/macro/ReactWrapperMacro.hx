@@ -51,8 +51,8 @@ class ReactWrapperMacro
 
 			var e = m.params[0];
 			wrapperExpr = wrapperExpr == null
-				? macro ${e}($i{inClass.name})
-				: macro ${e}(${wrapperExpr});
+				? macro @:pos(e.pos) ${e}($i{inClass.name})
+				: macro @:pos(e.pos) ${e}(${wrapperExpr});
 		});
 
 		var fieldName = '_renderWrapper';
