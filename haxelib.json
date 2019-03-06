@@ -6,8 +6,8 @@
   "contributors": [
     "klabz"
   ],
-  "releasenote": "JSX: interpolate attributes",
-  "version": "1.112.0",
+  "releasenote": "Fix defaultProps with flattened props",
+  "version": "1.112.1",
   "url": "https://github.com/kLabz/haxe-react",
   "classPath": "src/lib",
   "dependencies": {
