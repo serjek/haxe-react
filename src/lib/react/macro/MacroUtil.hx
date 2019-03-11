@@ -13,6 +13,7 @@ typedef ComponentTypes = {
 	@:optional var tstate:ComplexType;
 }
 
+@:dce
 class MacroUtil {
 	static public function isEmpty(type:ComplexType):Bool
 	{

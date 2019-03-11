@@ -10,6 +10,7 @@ import react.jsx.JsxStaticMacro;
 typedef Builder = ClassType -> Array<Field> -> Array<Field>;
 typedef BuilderWithKey = {?key:String, build:Builder};
 
+@:dce
 class ReactComponentMacro {
 	static public inline var ACCEPTS_MORE_PROPS_META = ":acceptsMoreProps";
 	static public inline var REACT_COMPONENT_BUILDER = "ReactComponent";

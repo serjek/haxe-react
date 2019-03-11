@@ -7,6 +7,7 @@ import haxe.macro.Expr;
 import haxe.macro.Type;
 import haxe.macro.TypeTools;
 
+@:dce
 class ReactTypeMacro
 {
 	static public inline var ALTER_SIGNATURES_BUILDER = 'AlterSignatures';

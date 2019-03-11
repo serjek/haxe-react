@@ -7,6 +7,7 @@ import haxe.macro.TypeTools;
 
 import react.macro.MacroUtil.*;
 
+@:dce
 class PureComponentMacro
 {
 	static public inline var PURE_COMPONENT_BUILDER = 'PureComponent';

@@ -4,6 +4,7 @@ import haxe.macro.Expr;
 import haxe.macro.ExprTools;
 import haxe.macro.Type;
 
+@:dce
 class JsxMacro
 {
 	static public function handleMarkup(inClass:ClassType, fields:Array<Field>):Array<Field>

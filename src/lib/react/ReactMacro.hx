@@ -34,6 +34,7 @@ typedef ComponentInfo = {
 /**
 	Provides a simple macro for parsing jsx into Haxe expressions.
 **/
+@:dce
 class ReactMacro
 {
 	public static macro function jsx(expr:ExprOf<String>):Expr

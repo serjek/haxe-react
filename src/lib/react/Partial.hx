@@ -15,6 +15,7 @@ import haxe.macro.TypeTools;
 #end
 class Partial<T> {}
 
+@:dce
 class PartialMacro {
 	#if macro
 	static function build()

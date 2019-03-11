@@ -9,6 +9,7 @@ import haxe.macro.TypeTools;
 import react.jsx.JsxStaticMacro;
 import react.macro.ReactComponentMacro.ACCEPTS_MORE_PROPS_META;
 
+@:dce
 class ReactWrapperMacro
 {
 	static public inline var WRAP_BUILDER = 'Wrap';

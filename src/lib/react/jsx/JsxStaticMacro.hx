@@ -20,6 +20,7 @@ private enum MetaValueType {
 	WithParams(meta:MetadataEntry, params:Array<Expr>);
 }
 
+@:dce
 class JsxStaticMacro
 {
 	static public inline var DISALLOW_IN_REACT_COMPONENT_BUILDER = 'JsxStaticDisallowInReactComponent';

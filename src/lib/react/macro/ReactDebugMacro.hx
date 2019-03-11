@@ -9,6 +9,7 @@ import haxe.macro.TypeTools;
 import react.macro.MacroUtil.isEmpty;
 #end
 
+@:dce
 class ReactDebugMacro
 {
 	public static inline var REACT_DEBUG_BUILDER = 'ReactDebug';
