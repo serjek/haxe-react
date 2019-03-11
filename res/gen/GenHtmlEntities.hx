@@ -8,31 +8,31 @@ import sys.io.File;
 
 class GenHtmlEntities
 {
-	static public function main() 
+	static public function main()
 	{
 		generate();
 	}
-	
-	macro static function generate() 
+
+	macro static function generate()
 	{
 		var src = File.getContent('entities.json');
 		src = src.split('\\u').join('\\\\u');
 		var json = Json.parse(src);
-		
+
 		var map:Map<String, String> = new Map();
 		for (key in Reflect.fields(json))
 		{
 			map.set(key, Reflect.field(json, key).characters);
 		}
 		createClass(map);
-		
+
 		return macro Sys.println('Done.');
 	}
-	
-	static function createClass(map:Map<String, String>) 
+
+	static function createClass(map:Map<String, String>)
 	{
 		var mapExpr = [for (name in map.keys()) macro $v{name} => $v{map.get(name)}];
-		
+
 		var cl = macro class HtmlEntities { };
 		cl.fields = [{
 				name: 'map',
@@ -41,10 +41,10 @@ class GenHtmlEntities
 				pos: Context.currentPos()
 			}
 		];
-		
+
 		var printer = new Printer();
-		var src = '/* GENERATED, DO NOT EDIT */\npackage react.jsx;\n' 
-			+ printer.printTypeDefinition(cl);
+		var src = '/* GENERATED, DO NOT EDIT */\npackage react.jsx;\n#if macro\n'
+			+ printer.printTypeDefinition(cl) + '\n#end';
 		File.saveContent('../../src/lib/react/jsx/HtmlEntities.hx', src);
 	}
 }
