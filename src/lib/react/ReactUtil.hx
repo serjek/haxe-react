@@ -2,6 +2,12 @@ package react;
 
 import react.ReactComponent;
 
+typedef ChangesSummary = {
+	@:optional var added:Array<String>;
+	@:optional var updated:Array<String>;
+	@:optional var deleted:Array<String>;
+}
+
 class ReactUtil
 {
 	public static function cx(arrayOrObject:Dynamic)
@@ -109,5 +115,53 @@ class ReactUtil
 			if (!Reflect.hasField(b, field) || Reflect.field(b, field) != Reflect.field(a, field))
 				return false;
 		return true;
+	}
+
+	public static function shallowChanges<T>(
+		obj:T,
+		obj2:T,
+		?ignoreEqual:Bool
+	):Null<ChangesSummary> {
+		var keys1 = getKeys(obj);
+		var keys2 = getKeys(obj2);
+
+		var added = [];
+		var deleted = [];
+		var updated = [];
+		var hasRet = false;
+
+		for (i in 0...keys1.length) {
+			var key = keys1[i];
+
+			if (Lambda.has(keys2, key)) {
+				if (Reflect.field(obj, key) != Reflect.field(obj2, key)) {
+					updated.push(key);
+					hasRet = true;
+				}
+			} else {
+				deleted.push(key);
+				hasRet = true;
+			}
+		}
+
+		for (i in 0...keys2.length) {
+			var key = keys2[i];
+
+			if (!Lambda.has(keys1, key)) {
+				added.push(key);
+				hasRet = true;
+			}
+		}
+
+		if (!hasRet) return null;
+		var ret:ChangesSummary = {};
+		if (added.length > 0) ret.added = added;
+		if (deleted.length > 0) ret.deleted = deleted;
+		if (updated.length > 0) ret.updated = updated;
+		return ret;
+	}
+
+	public static function getKeys<T>(obj:T):Array<String> {
+		return Reflect.fields(obj).filter(k -> Reflect.field(obj, k) != null);
 	}
 }

@@ -14,6 +14,7 @@ class ReactDebugMacro
 {
 	public static inline var REACT_DEBUG_BUILDER = 'ReactDebug';
 	public static inline var IGNORE_RENDER_WARNING_META = ':ignoreRenderWarning';
+	public static inline var WHY_RENDER_META = ':whyRender';
 	public static var firstRenderWarning:Bool = true;
 
 	#if macro
@@ -22,22 +23,18 @@ class ReactDebugMacro
 		if (inClass.isExtern) return fields;
 
 		var pos = Context.currentPos();
-		var propsType:Null<ComplexType> = macro :Dynamic;
-		var stateType:Null<ComplexType> = macro :Dynamic;
-		var hasState = false;
+		var propsType = macro :Dynamic;
+		var stateType = macro :Dynamic;
 
 		switch (inClass.superClass)
 		{
 			case {params: params, t: _.toString() => cls}
 			if (cls == 'react.ReactComponentOf' || cls == 'react.PureComponentOf'):
 				propsType = TypeTools.toComplexType(params[0]);
-				if (isEmpty(propsType)) propsType = null;
-
 				stateType = TypeTools.toComplexType(params[1]);
-				if (isEmpty(stateType)) stateType = null;
-				else hasState = true;
 
 			default:
+				throw 'Invalid component';
 		}
 
 		#if !react_runtime_warnings_ignore_rerender
@@ -46,18 +43,13 @@ class ReactDebugMacro
 				addComponentUpdate(fields, inClass, propsType, stateType);
 		#end
 
-		if (hasState && !updateConstructor(fields, inClass, propsType, stateType))
+		if (!isEmpty(stateType) && !updateConstructor(fields, inClass))
 			addConstructor(fields, inClass, propsType, stateType);
 
 		return fields;
 	}
 
-	static function updateConstructor(
-		fields:Array<Field>,
-		inClass:ClassType,
-		propsType:Null<ComplexType>,
-		stateType:Null<ComplexType>
-	) {
+	static function updateConstructor(fields:Array<Field>, inClass:ClassType) {
 		for (field in fields)
 		{
 			if (field.name == "new")
@@ -81,15 +73,15 @@ class ReactDebugMacro
 	static function addConstructor(
 		fields:Array<Field>,
 		inClass:ClassType,
-		propsType:Null<ComplexType>,
-		stateType:Null<ComplexType>
+		propsType:ComplexType,
+		stateType:ComplexType
 	) {
 		var constructor = {
 			args: [
 				{
 					meta: [],
 					name: "props",
-					type: propsType == null ? macro :react.Empty : propsType,
+					type: propsType,
 					opt: false,
 					value: null
 				}
@@ -133,8 +125,8 @@ class ReactDebugMacro
 	static function updateComponentUpdate(
 		fields:Array<Field>,
 		inClass:ClassType,
-		propsType:Null<ComplexType>,
-		stateType:Null<ComplexType>
+		propsType:ComplexType,
+		stateType:ComplexType
 	) {
 		for (field in fields)
 		{
@@ -149,8 +141,8 @@ class ReactDebugMacro
 							inClass,
 							f.args[0].name,
 							f.args[1].name,
-							propsType != null,
-							stateType != null
+							!isEmpty(propsType),
+							!isEmpty(stateType)
 						);
 
 						f.expr = macro {
@@ -170,15 +162,15 @@ class ReactDebugMacro
 	static function addComponentUpdate(
 		fields:Array<Field>,
 		inClass:ClassType,
-		propsType:Null<ComplexType>,
-		stateType:Null<ComplexType>
+		propsType:ComplexType,
+		stateType:ComplexType
 	) {
 		var expr = exprComponentDidUpdate(
 			inClass,
 			"prevProps",
 			"prevState",
-			propsType != null,
-			stateType != null
+			!isEmpty(propsType),
+			!isEmpty(stateType)
 		);
 
 		var componentDidUpdate = {
@@ -186,14 +178,14 @@ class ReactDebugMacro
 				{
 					meta: [],
 					name: "prevProps",
-					type: propsType == null ? macro :react.Empty : propsType,
+					type: propsType,
 					opt: false,
 					value: null
 				},
 				{
 					meta: [],
 					name: "prevState",
-					type: stateType == null ? macro :react.Empty : stateType,
+					type: stateType,
 					opt: false,
 					value: null
 				}
@@ -218,6 +210,44 @@ class ReactDebugMacro
 		hasState:Bool
 	) {
 		if (!hasProps && !hasState) return macro {};
+
+		var displayLongWarning = macro {
+			if (react.macro.ReactDebugMacro.firstRenderWarning) {
+				react.macro.ReactDebugMacro.firstRenderWarning = false;
+
+				js.Browser.console.warn(
+					'Make sure your props are flattened, or implement shouldComponentUpdate.\n' +
+					'See https://facebook.github.io/react/docs/optimizing-performance.html#shouldcomponentupdate-in-action' +
+					'\n\nAlso note that legacy context API can trigger false positives if children ' +
+					'rely on context. You can hide this warning for a specific component by adding ' +
+					'`@${IGNORE_RENDER_WARNING_META}` meta to its class.'
+				);
+			}
+		}
+
+		if (inClass.meta.has(WHY_RENDER_META)) {
+			return macro {
+				var propsChanges = react.ReactUtil.shallowChanges(props, prevProps);
+				if (propsChanges != null) {
+					js.Browser.console.log('Props changed for `${$v{inClass.name}}`.');
+					js.Browser.console.log(propsChanges);
+				}
+
+				var stateChanges = react.ReactUtil.shallowChanges(state, prevState);
+				if (stateChanges != null) {
+					js.Browser.console.log('State changed for `${$v{inClass.name}}`.');
+					js.Browser.console.log(stateChanges);
+				}
+
+				if (propsChanges == null && stateChanges == null) {
+					js.Browser.console.warn(
+						'Warning: avoidable re-render of `${$v{inClass.name}}`.'
+					);
+
+					${displayLongWarning}
+				}
+			};
+		}
 
 		return macro {
 			${hasProps
@@ -255,18 +285,7 @@ class ReactDebugMacro
 					);
 				}};
 
-				if (react.macro.ReactDebugMacro.firstRenderWarning)
-				{
-					react.macro.ReactDebugMacro.firstRenderWarning = false;
-
-					js.Browser.console.warn(
-						'Make sure your props are flattened, or implement shouldComponentUpdate.\n' +
-						'See https://facebook.github.io/react/docs/optimizing-performance.html#shouldcomponentupdate-in-action' +
-						'\n\nAlso note that legacy context API can trigger false positives if children ' +
-						'rely on context. You can hide this warning for a specific component by adding ' +
-						'`@${IGNORE_RENDER_WARNING_META}` meta to its class.'
-					);
-				}
+				${displayLongWarning}
 			}
 		}
 	}
