@@ -11,13 +11,12 @@ import react.macro.MacroUtil.*;
 class PureComponentMacro
 {
 	static public inline var PURE_COMPONENT_BUILDER = 'PureComponent';
-	static public inline var PURE_META = ':pureComponent';
-	static inline var PURE_INJECTED_META = ':pureComponent_injected';
+	@:deprecated static public inline var PURE_META = ReactMeta.PureComponent;
 
 	static public function buildComponent(inClass:ClassType, fields:Array<Field>):Array<Field>
 	{
-		if (inClass.meta.has(PURE_INJECTED_META)) return fields;
-		if (!inClass.meta.has(PURE_META)) return fields;
+		if (inClass.meta.has(ReactMeta.PureComponentInjected)) return fields;
+		if (!inClass.meta.has(ReactMeta.PureComponent)) return fields;
 
 		if (getField(fields, 'shouldComponentUpdate') == null) {
 			var propsType:Type = TDynamic(null);

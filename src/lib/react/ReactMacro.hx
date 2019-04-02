@@ -15,7 +15,7 @@ import react.jsx.HtmlEntities;
 import react.jsx.JsxStaticMacro;
 import react.macro.MacroUtil;
 import react.macro.PropsValidator;
-import react.macro.ReactComponentMacro.ACCEPTS_MORE_PROPS_META;
+import react.macro.ReactMeta;
 
 using tink.MacroApi;
 using StringTools;
@@ -177,8 +177,8 @@ class ReactMacro
 						switch (Context.typeof(type)) {
 							case TType(_.get().type => TAnonymous(_.get() => {
 								status: AClassStatics(_.get() => t)
-							}), _) if (t.meta.has(ACCEPTS_MORE_PROPS_META)):
-								var validators = t.meta.extract(ACCEPTS_MORE_PROPS_META);
+							}), _) if (t.meta.has(ReactMeta.AcceptsMoreProps)):
+								var validators = t.meta.extract(ReactMeta.AcceptsMoreProps);
 								if (validators[0].params.length > 0) {
 									for (v in validators[0].params) {
 										var k = MacroUtil.extractMetaString(v);

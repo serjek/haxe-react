@@ -13,7 +13,7 @@ class ReactTypeMacro
 	static public inline var ALTER_SIGNATURES_BUILDER = 'AlterSignatures';
 	static public inline var ENSURE_RENDER_OVERRIDE_BUILDER = 'EnsureRenderOverride';
 	static public inline var CHECK_GET_DERIVED_STATE_BUILDER = 'CheckDerivedState';
-	static public inline var IGNORE_EMPTY_RENDER_META = ':ignoreEmptyRender';
+	@:deprecated static public inline var IGNORE_EMPTY_RENDER_META = ReactMeta.IgnoreEmptyRender;
 
 	#if macro
 	public static function alterComponentSignatures(inClass:ClassType, fields:Array<Field>):Array<Field>
@@ -38,7 +38,7 @@ class ReactTypeMacro
 
 	public static function ensureRenderOverride(inClass:ClassType, fields:Array<Field>):Array<Field>
 	{
-		if (!(inClass.isExtern || inClass.meta.has(IGNORE_EMPTY_RENDER_META)))
+		if (!(inClass.isExtern || inClass.meta.has(ReactMeta.IgnoreEmptyRender)))
 			if (!Lambda.exists(fields, function(f) return f.name == 'render'))
 				Context.warning(
 					'Component ${inClass.name}: '

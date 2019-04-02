@@ -13,9 +13,10 @@ import react.macro.MacroUtil.isEmpty;
 class ReactDebugMacro
 {
 	public static inline var REACT_DEBUG_BUILDER = 'ReactDebug';
-	public static inline var IGNORE_RENDER_WARNING_META = ':ignoreRenderWarning';
-	public static inline var WHY_RENDER_META = ':whyRender';
 	public static var firstRenderWarning:Bool = true;
+
+	@:deprecated public static inline var IGNORE_RENDER_WARNING_META = ReactMeta.IgnoreRenderWarning;
+	@:deprecated public static inline var WHY_RENDER_META = ReactMeta.WhyRender;
 
 	#if macro
 	public static function buildComponent(inClass:ClassType, fields:Array<Field>):Array<Field>
@@ -38,7 +39,7 @@ class ReactDebugMacro
 		}
 
 		#if !react_runtime_warnings_ignore_rerender
-		if (!inClass.meta.has(IGNORE_RENDER_WARNING_META))
+		if (!inClass.meta.has(ReactMeta.IgnoreRenderWarning))
 			if (!updateComponentUpdate(fields, inClass, propsType, stateType))
 				addComponentUpdate(fields, inClass, propsType, stateType);
 		#end
@@ -220,12 +221,12 @@ class ReactDebugMacro
 					'See https://facebook.github.io/react/docs/optimizing-performance.html#shouldcomponentupdate-in-action' +
 					'\n\nAlso note that legacy context API can trigger false positives if children ' +
 					'rely on context. You can hide this warning for a specific component by adding ' +
-					'`@${IGNORE_RENDER_WARNING_META}` meta to its class.'
+					'`@${ReactMeta.IgnoreRenderWarning}` meta to its class.'
 				);
 			}
 		}
 
-		if (inClass.meta.has(WHY_RENDER_META)) {
+		if (inClass.meta.has(ReactMeta.WhyRender)) {
 			return macro {
 				var propsChanges = react.ReactUtil.shallowChanges(props, prevProps);
 				if (propsChanges != null) {

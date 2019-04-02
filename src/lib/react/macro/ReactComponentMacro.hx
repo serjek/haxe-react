@@ -12,8 +12,8 @@ typedef BuilderWithKey = {?key:String, build:Builder};
 
 @:dce
 class ReactComponentMacro {
-	static public inline var ACCEPTS_MORE_PROPS_META = ":acceptsMoreProps";
 	static public inline var REACT_COMPONENT_BUILDER = "ReactComponent";
+	@:deprecated static public inline var ACCEPTS_MORE_PROPS_META = ReactMeta.AcceptsMoreProps;
 
 	static var builders:Array<BuilderWithKey> = [
 		{build: ReactMacro.buildComponent, key: REACT_COMPONENT_BUILDER},
