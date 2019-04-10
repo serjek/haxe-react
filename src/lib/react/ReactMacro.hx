@@ -625,7 +625,16 @@ class ReactMacro
 	static function body(c:Children)
 	{
 		if (c == null) return macro null;
-		return macro ${children(c, REACT_FRAGMENT_CT).compound};
+
+		var childrenArr = children(c, REACT_FRAGMENT_CT).individual;
+		return switch (childrenArr.length) {
+			case 0: macro null;
+			case 1: childrenArr[0];
+			default:
+				macro react.React.createElement($a{
+					[macro react.Fragment, macro null].concat(childrenArr)
+				});
+		};
 	}
 
 	static var componentsMap:Map<String, ComponentInfo> = new Map();
