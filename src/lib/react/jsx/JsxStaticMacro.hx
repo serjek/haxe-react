@@ -223,7 +223,9 @@ class JsxStaticMacro
 		try {
 			// Could also loop through modules, but it's easier like this
 			Context.getModule(initModule);
-		} catch(e:Dynamic) {
+		} catch(e:Error) {
+			if (e.message != 'Type not found : $initModule') throw e;
+
 			var exprs = decls.map(function(decl) {
 				var fName = decl.fieldName;
 				return macro {
