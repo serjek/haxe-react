@@ -36,7 +36,11 @@ class ReactComponentMacro {
 		#end
 
 		#if (debug && react_runtime_warnings)
-		{build: ReactDebugMacro.buildComponent, key: ReactDebugMacro.REACT_DEBUG_BUILDER}
+		{build: ReactDebugMacro.buildComponent, key: ReactDebugMacro.REACT_DEBUG_BUILDER},
+		#end
+
+		#if (js_es == 6)
+		{build: ReactTypeMacro.fixEs6Constructor, key: ReactTypeMacro.FIX_ES6_CONSTRUCTOR_BUILDER},
 		#end
 	];
 
