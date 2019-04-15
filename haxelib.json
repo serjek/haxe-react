@@ -6,8 +6,8 @@
   "contributors": [
     "klabz"
   ],
-  "releasenote": "Output optims, @:whyRender and ReactMeta abstract",
-  "version": "1.113.0",
+  "releasenote": "Better error handling + haxe 3.4.x fix",
+  "version": "1.114.0",
   "url": "https://github.com/kLabz/haxe-react",
   "classPath": "src/lib",
   "dependencies": {
