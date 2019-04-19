@@ -26,7 +26,7 @@ class JsxMacro
 					return switch(e.expr) {
 						// Replace markup by a jsx call
 						case EMeta({name: ':markup'}, e):
-							macro @:pos(e.pos) react.ReactMacro.jsx($e);
+							macro @:pos(e.pos) react.ReactMacro.jsx(@:markup $e);
 
 						// Do not iterate inside function calls to avoid jsx calls of all sorts
 						case ECall(ecall, params): e;
