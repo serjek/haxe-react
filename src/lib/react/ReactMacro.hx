@@ -39,6 +39,13 @@ class ReactMacro
 {
 	public static macro function jsx(expr:ExprOf<String>):Expr
 	{
+		if (Context.defined('display')) {
+			return switch(expr) {
+				case macro @:markup $v{(s:String)}: macro @:pos(expr.pos) untyped $v{s};
+				case _: macro @:pos(expr.pos) untyped $e{expr};
+			};
+		}
+
 		function children(c:Children)
 			return switch c.value {
 				case [v]: child(v);
