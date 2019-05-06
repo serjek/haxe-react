@@ -11,7 +11,6 @@ import tink.hxx.Node;
 import tink.hxx.Parser;
 import tink.hxx.StringAt;
 import react.jsx.AriaAttributes;
-import react.jsx.HtmlEntities;
 import react.jsx.JsxStaticMacro;
 import react.macro.MacroUtil;
 import react.macro.PropsValidator;
@@ -90,38 +89,6 @@ class ReactMacro
 
 	#if macro
 	static var REACT_FRAGMENT_CT = macro :react.ReactComponent.ReactFragment;
-
-	static public function replaceEntities(value:String, pos:Position)
-	{
-		if (value.indexOf('&') < 0)
-			return value;
-
-		var reEntity = ~/&[a-z0-9]+;/gi;
-		var result = '';
-		var index = 0;
-
-		while (reEntity.match(value.substr(index)))
-		{
-			var left = reEntity.matchedLeft();
-			result += left;
-			var entity = reEntity.matched(0);
-			index += left.length + entity.length;
-
-			result += switch (HtmlEntities.map[entity]) {
-				case null:
-					var infos = Context.getPosInfos(pos);
-					infos.max = infos.min + index;
-					infos.min = infos.min + index - entity.length;
-					Context.makePosition(infos).warning('unknown entity $entity');
-					entity;
-				case e: e;
-			};
-		}
-
-		result += value.substr(index);
-		//TODO: consider giving warnings for isolated `&`
-		return result;
-	}
 
 	static public function toFieldExpr(sl:Array<String>, pos:Position = null):Expr
 	{
@@ -479,10 +446,8 @@ class ReactMacro
 	{
 		return switch (c.value) {
 			case CText(s):
-				var parsed = replaceEntities(s.value, s.pos);
-
 				#if (react_diagnostics || jsx_warn_for_constant_text)
-				if (~/([^a-zA-Z]+)/g.replace(parsed, '').length > 2) {
+				if (~/([^a-zA-Z]+)/g.replace(s.value, '').length > 2) {
 					var localClass = Context.getLocalClass();
 					if (localClass == null || !localClass.get().meta.has(':jsxIgnoreConstantText')) {
 						Context.warning('Constant text detected in jsx', s.pos);
@@ -490,7 +455,7 @@ class ReactMacro
 				}
 				#end
 
-				macro @:pos(s.pos) $v{parsed};
+				macro @:pos(s.pos) $v{s.value};
 
 			case CExpr(e): e;
 			case CNode(n):
@@ -540,7 +505,7 @@ class ReactMacro
 						case Regular(name, value):
 							neededAttrs.remove(name.value);
 							var expr = value.getString()
-								.map(function (s) return haxe.macro.MacroStringTools.formatString(replaceEntities(s, value.pos), value.pos))
+								.map(function (s) return haxe.macro.MacroStringTools.formatString(s, value.pos))
 								.orUse(value);
 
 							switch (name.value)
