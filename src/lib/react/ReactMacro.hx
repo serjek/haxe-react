@@ -478,7 +478,20 @@ class ReactMacro
 	static function child(c:Child)
 	{
 		return switch (c.value) {
-			case CText(s): macro @:pos(s.pos) $v{replaceEntities(s.value, s.pos)};
+			case CText(s):
+				var parsed = replaceEntities(s.value, s.pos);
+
+				#if (react_diagnostics || jsx_warn_for_constant_text)
+				if (~/([^a-zA-Z]+)/g.replace(parsed, '').length > 2) {
+					var localClass = Context.getLocalClass();
+					if (localClass == null || !localClass.get().meta.has(':jsxIgnoreConstantText')) {
+						Context.warning('Constant text detected in jsx', s.pos);
+					}
+				}
+				#end
+
+				macro @:pos(s.pos) $v{parsed};
+
 			case CExpr(e): e;
 			case CNode(n):
 				var type = switch (n.name.value.replace('$', '').split('.')) {
