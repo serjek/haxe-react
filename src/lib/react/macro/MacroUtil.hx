@@ -29,6 +29,21 @@ class MacroUtil {
 		};
 	}
 
+	static public function toFieldExpr(sl:Array<String>, pos:Position = null):Expr
+	{
+		if (pos == null) pos = Context.currentPos();
+
+		return Lambda.fold(
+			sl,
+			function(s, e) {
+				return e == null
+					? (macro @:pos(pos) $i{s})
+					: (macro @:pos(pos) $e.$s);
+			},
+			null
+		);
+	}
+
 	// TODO: add some cache
 	static public function extractComponentTypes(inClass:ClassType):ComponentTypes
 	{

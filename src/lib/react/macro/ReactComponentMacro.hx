@@ -1,22 +1,36 @@
 package react.macro;
 
 #if macro
+import haxe.macro.ComplexTypeTools;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
+import haxe.macro.TypeTools;
 
 import react.jsx.JsxStaticMacro;
 
 typedef Builder = ClassType -> Array<Field> -> Array<Field>;
 typedef BuilderWithKey = {?key:String, build:Builder};
 
+#if (haxe_ver < 4)
+private typedef ObjectField = {field:String, expr:Expr};
+#end
+
+typedef ComponentInfo = {
+	isExtern:Bool,
+	tprops:Null<ComplexType>,
+	props:Array<ObjectField>
+}
+
 @:dce
 class ReactComponentMacro {
 	static public inline var REACT_COMPONENT_BUILDER = "ReactComponent";
 	@:deprecated static public inline var ACCEPTS_MORE_PROPS_META = ReactMeta.AcceptsMoreProps;
 
+	static var componentsMap:Map<String, ComponentInfo> = new Map();
+
 	static var builders:Array<BuilderWithKey> = [
-		{build: ReactMacro.buildComponent, key: REACT_COMPONENT_BUILDER},
+		{build: buildComponent, key: REACT_COMPONENT_BUILDER},
 
 		#if (haxe4 && react_auto_jsx)
 		{build: react.jsx.JsxMacro.handleMarkup, key: "todo"},
@@ -93,6 +107,154 @@ class ReactComponentMacro {
 			Context.getBuildFields()
 		);
 	}
+
+	/* METADATA */
+
+	/**
+	 * Process React components
+	 */
+	static public function buildComponent(inClass:ClassType, fields:Array<Field>):Array<Field>
+	{
+		var pos = Context.currentPos();
+
+		#if (!debug && !react_no_inline)
+		storeComponentInfos(fields, inClass, pos);
+		#end
+
+		if (!inClass.isExtern)
+			tagComponent(fields, inClass, pos);
+
+		return fields;
+	}
+
+	/**
+	 * Extract component default props
+	 */
+	static function storeComponentInfos(fields:Array<Field>, inClass:ClassType, pos:Position)
+	{
+		var key = getClassKey(inClass);
+
+		for (field in fields)
+			if (field.name == 'defaultProps')
+			{
+				switch (field.kind) {
+					case FieldType.FVar(ct, _.expr => EObjectDecl(props)):
+						if (ct == null) {
+							var types = MacroUtil.extractComponentTypes(inClass);
+							var tprops = TypeTools.toComplexType(
+								Context.follow(ComplexTypeTools.toType(types.tprops))
+							);
+
+							ct = switch (tprops) {
+								case TPath({name: "Dynamic", params: [], pack: []}): macro :Dynamic;
+								default: macro :react.Partial<$tprops>;
+							};
+						} else {
+							ct = TypeTools.toComplexType(
+								Context.follow(ComplexTypeTools.toType(ct))
+							);
+						}
+
+						componentsMap.set(key, {
+							isExtern: inClass.isExtern,
+							tprops: ct,
+							props: props.copy()
+						});
+
+						return;
+					default:
+						break;
+				}
+			}
+
+		componentsMap.set(key, {
+			props: null,
+			tprops: null,
+			isExtern: inClass.isExtern
+		});
+	}
+
+	/**
+	 * For a given type, resolve default props and filter user-defined props out
+	 */
+	static public function getDefaultProps(typeInfo:ComponentInfo, attrs:Array<ObjectField>)
+	{
+		if (typeInfo == null) return null;
+
+		if (typeInfo.props != null)
+			return typeInfo.props.filter(function(defaultProp) {
+				var name = defaultProp.field;
+				for (prop in attrs) if (prop.field == name) return false;
+				return true;
+			});
+
+		return null;
+	}
+
+	/**
+	 * Annotate React components for run-time JS reflection
+	 */
+	static function tagComponent(fields:Array<Field>, inClass:ClassType, pos:Position)
+	{
+		#if !debug return; #end
+		if (inClass.isExtern) return;
+
+		addDisplayName(fields, inClass, pos);
+
+		#if react_hot
+		addTagSource(fields, inClass, pos);
+		#end
+	}
+
+	static function addTagSource(fields:Array<Field>, inClass:ClassType, pos:Position)
+	{
+		// add a __fileName__ static field
+		var className = inClass.name;
+		var fileName = Context.getPosInfos(inClass.pos).file;
+
+		fields.push({
+			name:'__fileName__',
+			access:[Access.AStatic],
+			kind:FieldType.FVar(null, macro $v{fileName}),
+			pos:pos
+		});
+	}
+
+	static function addDisplayName(fields:Array<Field>, inClass:ClassType, pos:Position)
+	{
+		for (field in fields)
+			if (field.name == 'displayName') return;
+
+		// add 'displayName' static property to see class names in React inspector panel
+		var className = macro $v{inClass.name};
+		var field:Field = {
+			name:'displayName',
+			access:[Access.AStatic, Access.APrivate],
+			kind:FieldType.FVar(null, className),
+			pos:pos
+		}
+		fields.push(field);
+		return;
+	}
+
+	static public function getComponentInfo(expr:Expr):ComponentInfo
+	{
+		var key = getExprKey(expr);
+		return key != null ? componentsMap.get(key) : null;
+	}
+
+	static function getClassKey(inClass:ClassType)
+	{
+		var qname = inClass.pack.concat([inClass.name]).join('.');
+		return 'Class<$qname>';
+	}
+
+	static function getExprKey(expr:Expr)
+	{
+		return try switch (Context.typeof(expr)) {
+			case Type.TType(_.get() => t, _): t.name;
+			default: null;
+		}
+	}
 }
 #end
-
