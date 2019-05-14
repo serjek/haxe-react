@@ -47,7 +47,7 @@ class JsxStaticMacro
 			for (f in fields) {
 				if (f.name == FIELD_NAME) return null;
 
-				#if (haxe4 && !react_no_auto_jsx)
+				#if (haxe4 && react_auto_jsx)
 				if (f.name == proxyName) react.jsx.JsxMacro.wrapMarkupInField(f);
 				#end
 			}

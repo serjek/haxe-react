@@ -18,7 +18,7 @@ class ReactComponentMacro {
 	static var builders:Array<BuilderWithKey> = [
 		{build: ReactMacro.buildComponent, key: REACT_COMPONENT_BUILDER},
 
-		#if (haxe4 && !react_no_auto_jsx)
+		#if (haxe4 && react_auto_jsx)
 		{build: react.jsx.JsxMacro.handleMarkup, key: "todo"},
 		#end
 
