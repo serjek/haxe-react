@@ -220,29 +220,28 @@ class JsxStaticMacro
 	{
 		var initModule = "JsxStaticInit__";
 
-		try {
-			// Could also loop through modules, but it's easier like this
-			Context.getModule(initModule);
-		} catch(e:Error) {
-			if (e.message != 'Type not found : $initModule') throw e;
-
-			var exprs = decls.map(function(decl) {
-				var fName = decl.fieldName;
-				return macro {
-					untyped $i{decl.className}.$fName.displayName =
-					$i{decl.className}.$fName.displayName || $v{decl.displayName};
-				};
-			});
-
-			var cls = macro class $initModule {
-				static function __init__() {
-					$a{exprs};
-				}
-			};
-
-			var imports = decls.map(function(decl) return generatePath(decl.module));
-			Context.defineModule(initModule, [cls], imports);
+		for (m in modules) switch (m) {
+			case TClassDecl(_.toString() => "JsxStaticInit__"):
+				return;
+			case _:
 		}
+
+		var exprs = decls.map(function(decl) {
+			var fName = decl.fieldName;
+			return macro {
+				untyped $i{decl.className}.$fName.displayName =
+				$i{decl.className}.$fName.displayName || $v{decl.displayName};
+			};
+		});
+
+		var cls = macro class $initModule {
+			static function __init__() {
+				$a{exprs};
+			}
+		};
+
+		var imports = decls.map(function(decl) return generatePath(decl.module));
+		Context.defineModule(initModule, [cls], imports);
 	}
 
 	static function generatePath(module:String)
