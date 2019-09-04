@@ -2,12 +2,11 @@ package react;
 import js.Error;
 import haxe.extern.EitherType;
 
-typedef ReactComponentProps = {
-	/**
-		Children have to be manipulated using React.Children.*
-	**/
-	@:optional var children:Dynamic;
-}
+@:deprecated
+typedef ReactComponentProps = react.BaseProps.BasePropsWithOptChildren;
+
+// TODO: allow using strict typing for snapshots somehow
+typedef TSnapshot = Any;
 
 /**
 	https://facebook.github.io/react/docs/react-component.html
@@ -63,6 +62,7 @@ extern class ReactComponentOf<TProps:{}, TState:{}>
 	/**
 		https://facebook.github.io/react/docs/react-component.html#componentwillmount
 	**/
+	@:deprecated
 	function componentWillMount():Void;
 
 	/**
@@ -78,6 +78,7 @@ extern class ReactComponentOf<TProps:{}, TState:{}>
 	/**
 		https://facebook.github.io/react/docs/react-component.html#componentwillreceiveprops
 	**/
+	@:deprecated
 	function componentWillReceiveProps(nextProps:TProps):Void;
 
 	/**
@@ -86,19 +87,25 @@ extern class ReactComponentOf<TProps:{}, TState:{}>
 	dynamic function shouldComponentUpdate(nextProps:TProps, nextState:TState):Bool;
 
 	/**
+		https://reactjs.org/docs/react-component.html#getsnapshotbeforeupdate
+	**/
+	function getSnapshotBeforeUpdate(nextProps:TProps, nextState:TState):Null<TSnapshot>;
+
+	/**
 		https://facebook.github.io/react/docs/react-component.html#componentwillupdate
 	**/
+	@:deprecated
 	function componentWillUpdate(nextProps:TProps, nextState:TState):Void;
 
 	/**
 		https://facebook.github.io/react/docs/react-component.html#componentdidupdate
 	**/
-	function componentDidUpdate(prevProps:TProps, prevState:TState):Void;
+	function componentDidUpdate(prevProps:TProps, prevState:TState, snapshot:Null<TSnapshot>):Void;
 
 	/**
 		https://reactjs.org/blog/2017/07/26/error-handling-in-react-16.html
 	**/
-	function componentDidCatch(error:Error, info:{ componentStack:String }):Void;
+	function componentDidCatch(error:Error, info:ReactErrorInfo):Void;
 
 	#if (js && !debug && !react_no_inline)
 	static function __init__():Void {
@@ -129,6 +136,10 @@ typedef ReactElement = {
 	?_shadowChildren:Dynamic,
 	?_source:ReactSource,
 	#end
+}
+
+typedef ReactErrorInfo = {
+	componentStack:String
 }
 
 @:pure @:coreType abstract ReactSingleFragment
