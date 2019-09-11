@@ -1,5 +1,15 @@
 package react;
 
+import react.ReactComponent.ReactFragment;
+
+#if nodejs
+import js.node.stream.Readable;
+
+@:native('ReactMarkupReadableStream')
+@:jsRequire('react-dom/server/ReactDOMNodeStreamRenderer', 'ReactMarkupReadableStream')
+class ReactMarkupReadableStream extends Readable<ReactMarkupReadableStream> {}
+#end
+
 /**
 	https://facebook.github.io/react/docs/react-dom-server.html
 **/
@@ -10,12 +20,24 @@ package react;
 extern class ReactDOMServer
 {
 	/**
-		https://facebook.github.io/react/docs/react-dom-server.html#rendertostring
+		https://reactjs.org/docs/react-dom-server.html#rendertostring
 	**/
-	public static function renderToString(component:ReactComponent):String;
+	public static function renderToString(node:ReactFragment):String;
 
 	/**
-		https://facebook.github.io/react/docs/react-dom-server.html#rendertostaticmarkup
+		https://reactjs.org/docs/react-dom-server.html#rendertostaticmarkup
 	**/
-	public static function renderToStaticMarkup(component:ReactComponent):String;
+	public static function renderToStaticMarkup(node:ReactFragment):String;
+
+	#if nodejs
+	/**
+		https://reactjs.org/docs/react-dom-server.html#rendertonodestream
+	**/
+	public static function renderToNodeStream(node:ReactFragment):ReactMarkupReadableStream;
+
+	/**
+		https://reactjs.org/docs/react-dom-server.html#rendertostaticnodestream
+	**/
+	public static function renderToStaticNodeStream(node:ReactFragment):ReactMarkupReadableStream;
+	#end
 }
