@@ -1,7 +1,5 @@
 package react.macro;
 
-import haxe.macro.TypeTools;
-import haxe.macro.ComplexTypeTools;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
@@ -25,9 +23,10 @@ class ReactTypeMacro
 		var tstate = types.tstate == null ? macro :Dynamic : types.tstate;
 
 		// Only alter setState signature for non-dynamic states
-		switch (ComplexTypeTools.toType(tstate))
-		{
-			case TType(_) if (!hasSetState(fields)):
+		switch (tstate) {
+			case TPath({name: "Empty", pack: ["react"]}), TPath({name: "Dynamic", pack: []}):
+
+			case TPath(_) | TAnonymous(_) if (!hasSetState(fields)):
 				addSetStateType(fields, inClass, tprops, tstate);
 
 			default:
@@ -109,13 +108,10 @@ class ReactTypeMacro
 	) {
 		fields.push((macro class C {
 			@:extern
-			@:overload(function(nextState:$stateType -> react.Partial<$stateType>, ?callback:Void -> Void):Void {})
+			@:overload(function(nextState:react.Partial<$stateType>, ?callback:Void -> Void):Void {})
 			@:overload(function(nextState:$stateType -> $propsType -> react.Partial<$stateType>, ?callback:Void -> Void):Void {})
-			override public function setState(nextState: react.Partial<$stateType>, ?callback:Void -> Void): Void
-				#if haxe4
-				// explictly omit function body
-				// newer haxe 4 builds (preview 5 and up) don't require a function body – however haxe4 flag is not set until rc1
-				#else
+			override public function setState(nextState:$stateType -> react.Partial<$stateType>, ?callback:Void -> Void):Void
+				#if !haxe4
 				{ super.setState(nextState, callback); }
 				#end
 			;
