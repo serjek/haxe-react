@@ -7,7 +7,7 @@
     "klabz"
   ],
   "releasenote": "Make auto jsx wrapping for inline markup opt-in instead of opt-out",
-  "version": "1.116.0",
+  "version": "1.117.0",
   "url": "https://github.com/kLabz/haxe-react",
   "classPath": "src/lib",
   "dependencies": {
