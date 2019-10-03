@@ -216,15 +216,13 @@ class JsxStaticMacro
 		if (previousDecl == null) decls.push(decl);
 	}
 
-	static function afterTypingHook(modules:Array<ModuleType>)
-	{
-		var initModule = "JsxStaticInit__";
+	static var initModuleGenerated:Bool = false;
 
-		for (m in modules) switch (m) {
-			case TClassDecl(_.toString() => "JsxStaticInit__"):
-				return;
-			case _:
-		}
+	static function afterTypingHook(_:Array<ModuleType>)
+	{
+		if (initModuleGenerated) return;
+		var initModule = "JsxStaticInit__";
+		initModuleGenerated = true;
 
 		var exprs = decls.map(function(decl) {
 			var fName = decl.fieldName;
