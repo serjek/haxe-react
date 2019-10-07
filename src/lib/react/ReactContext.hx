@@ -12,6 +12,7 @@ abstract ReactContext<T>(IReactContext<T>) from IReactContext<T> to IReactContex
 }
 
 extern interface IReactContext<T> {
+	var displayName:String;
 	var Consumer:ReactContext<T>;
 	var Provider:ReactProviderType<T>;
 
