@@ -3,14 +3,15 @@ package react;
 import react.ReactComponent.ReactFragment;
 import react.ReactType;
 
-@:pure @:coreType
-abstract ReactContext<T>
-from IReactContext<T>
-to IReactContext<T>
-to ReactTypeOf<{children:T->ReactFragment}> {}
+@:forward
+abstract ReactContext<T>(IReactContext<T>) from IReactContext<T> to IReactContext<T> {
+	@:to
+	public function toReactType():ReactTypeOf<{children:T->ReactFragment}> {
+		return cast this;
+	}
+}
 
-extern interface IReactContext<T>
-{
+extern interface IReactContext<T> {
 	var Consumer:ReactContext<T>;
 	var Provider:ReactProviderType<T>;
 
@@ -32,7 +33,6 @@ from IReactProviderType<T>
 to IReactProviderType<T>
 to ReactTypeOf<{value:T}> {}
 
-extern interface IReactProviderType<T>
-{
+extern interface IReactProviderType<T> {
 	var _context:ReactContext<T>;
 }

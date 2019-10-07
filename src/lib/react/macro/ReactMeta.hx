@@ -22,6 +22,11 @@ package react.macro;
 	var JsxStatic = ':jsxStatic';
 
 	/**
+		TODO: Documentation for macro context API
+	*/
+	var ContextMeta = ':context';
+
+	/**
 		TODO: Documentation for macro implementation of pure components.
 	*/
 	var PureComponent = ':pureComponent';

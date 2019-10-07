@@ -36,6 +36,7 @@ class ReactComponentMacro {
 		{build: react.jsx.JsxMacro.handleMarkup, key: "todo"},
 		#end
 
+		{build: ContextMacro.buildComponent, key: ContextMacro.REACT_CONTEXT_BUILDER},
 		{build: ReactTypeMacro.alterComponentSignatures, key: ReactTypeMacro.ALTER_SIGNATURES_BUILDER},
 		{build: JsxStaticMacro.disallowInReactComponent, key: JsxStaticMacro.DISALLOW_IN_REACT_COMPONENT_BUILDER},
 		{build: ReactWrapperMacro.buildComponent, key: ReactWrapperMacro.WRAP_BUILDER},

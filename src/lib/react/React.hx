@@ -50,10 +50,7 @@ extern class React
 	public static function createContext<TContext>(
 		?defaultValue:TContext,
 		?calculateChangedBits:TContext->TContext->Int
-	):{
-		Provider:ReactProviderType<TContext>,
-		Consumer:ReactContext<TContext>
-	};
+	):ReactContext<TContext>;
 
 	/**
 		https://reactjs.org/docs/react-api.html#reactcreateref
