@@ -13,16 +13,25 @@ class ContextMacro {
 		if (inClass.isExtern) return fields;
 		if (!inClass.meta.has(ReactMeta.ContextMeta)) return fields;
 
-		var meta = inClass.meta.extract(ReactMeta.ContextMeta)[0];
-		if (meta.params.length != 1) {
-			Context.error(
-				'@${ReactMeta.ContextMeta} expects an argument: the instance of'
-				+ 'the context provider',
-				meta.pos
+		var meta = inClass.meta.extract(ReactMeta.ContextMeta);
+		for (i in 1...meta.length) {
+			Context.warning(
+				'You can only use one @${ReactMeta.ContextMeta} meta per'
+				+ ' component; only the first one will apply.',
+				meta[i].pos
 			);
 		}
 
-		var contextProvider = meta.params[0];
+		var first = meta[0];
+		if (first.params.length != 1) {
+			Context.error(
+				'@${ReactMeta.ContextMeta} expects an argument: the instance of'
+				+ ' the context provider',
+				first.pos
+			);
+		}
+
+		var contextProvider = first.params[0];
 		var ctContext = switch (Context.typeof(contextProvider)) {
 			case TAbstract(_.toString() => "react.ReactContext", [t]):
 				TypeTools.toComplexType(t);
