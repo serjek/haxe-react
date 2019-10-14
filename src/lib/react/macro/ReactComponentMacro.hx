@@ -176,18 +176,14 @@ class ReactComponentMacro {
 	}
 
 	/**
-	 * For a given type, resolve default props and filter user-defined props out
+	 * For a given type, resolve default props
 	 */
 	static public function getDefaultProps(typeInfo:ComponentInfo, attrs:Array<ObjectField>)
 	{
 		if (typeInfo == null) return null;
 
 		if (typeInfo.props != null)
-			return typeInfo.props.filter(function(defaultProp) {
-				var name = defaultProp.field;
-				for (prop in attrs) if (prop.field == name) return false;
-				return true;
-			});
+			return typeInfo.props.copy();
 
 		return null;
 	}

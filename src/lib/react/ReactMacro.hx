@@ -192,6 +192,18 @@ class ReactMacro
 							if (typeInfo.tprops != null)
 								obj = {expr: ECheckType(obj, typeInfo.tprops), pos: pos};
 							spread.unshift(obj);
+
+							// Apply defaultProps to `undefined` props too to
+							// ensure coherent behavior with and without inline
+							// props
+							for (dp in defaultProps) {
+								for (prop in attrs) {
+									if (prop.field == dp.field) {
+										var e = prop.expr;
+										prop.expr = macro untyped __js__('{0} === undefined', $e) ? ${dp.expr} : $e;
+									}
+								}
+							}
 						}
 					}
 
