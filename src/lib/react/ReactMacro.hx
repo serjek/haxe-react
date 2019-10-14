@@ -113,7 +113,7 @@ class ReactMacro
 				if (!isHtml) JsxStaticMacro.handleJsxStaticProxy(type);
 
 				var checkProp = typeChecker(type, c.pos, isHtml);
-				var attrs = new Array<ObjectField>();
+				var attrs = new Array<ExtendedObjectField>();
 				var spread = [];
 				var key = null;
 				var ref = null;
@@ -125,7 +125,11 @@ class ReactMacro
 				{
 					attrs.push({
 						field: name.value,
-						expr: checkProp(name, e)
+						expr: checkProp(name, e),
+						isConstant: switch (e.expr) {
+							case EConst(_), EParenthesis({expr: EConst(_)}): true;
+							case _: false;
+						}
 					});
 				}
 
@@ -182,32 +186,34 @@ class ReactMacro
 						attrs.push({field:'children', expr: children.compound });
 					}
 
+					var applyDefaultProps:Expr->Expr = function(e) return e;
+
 					if (!isHtml)
 					{
 						var defaultProps = ReactComponentMacro.getDefaultProps(typeInfo, attrs);
-
-						if (defaultProps != null)
-						{
-							var obj = {expr: EObjectDecl(defaultProps), pos: pos};
-							if (typeInfo.tprops != null)
-								obj = {expr: ECheckType(obj, typeInfo.tprops), pos: pos};
-							spread.unshift(obj);
-
-							// Apply defaultProps to `undefined` props too to
-							// ensure coherent behavior with and without inline
-							// props
-							for (dp in defaultProps) {
-								for (prop in attrs) {
-									if (prop.field == dp.field) {
-										var e = prop.expr;
-										prop.expr = macro untyped __js__('{0} === undefined', $e) ? ${dp.expr} : $e;
-									}
+						if (defaultProps != null) {
+							// Reproduce react's way of applying defaultProps to
+							// make sure we get consistent behavior between
+							// debug/non-debug/react_no_inline
+							// See https://github.com/facebook/react/blob/d3622d0/packages/react/src/ReactElement.js#L210
+							applyDefaultProps = function(e:Expr) {
+								return macro {
+									var __props = $e;
+									@:mergeBlock $b{[for (defaultProp in defaultProps) {
+										var name = defaultProp.field;
+										macro {
+											if (untyped __js__('{0} === undefined', __props.$name))
+												__props.$name = $e{defaultProp.expr};
+										};
+									}]};
+									__props;
 								}
 							}
 						}
 					}
 
 					var props = JsxPropsBuilder.makeProps(spread, attrs, pos);
+					props = applyDefaultProps(props);
 					JsxLiteral.genLiteral(type, props, ref, key, pos);
 				}
 				else

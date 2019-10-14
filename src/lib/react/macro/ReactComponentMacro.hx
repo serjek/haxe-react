@@ -22,6 +22,11 @@ typedef ComponentInfo = {
 	props:Array<ObjectField>
 }
 
+typedef ExtendedObjectField = {
+	> ObjectField,
+	?isConstant:Bool
+}
+
 @:dce
 class ReactComponentMacro {
 	static public inline var REACT_COMPONENT_BUILDER = "ReactComponent";
@@ -176,14 +181,20 @@ class ReactComponentMacro {
 	}
 
 	/**
-	 * For a given type, resolve default props
+	 * For a given type, resolve default props and resolve user-defined constant
+	 * props out (if not constant, we cannot be sure it won't resolve to
+	 * `js.Lib.undefined` and have different behavior)
 	 */
-	static public function getDefaultProps(typeInfo:ComponentInfo, attrs:Array<ObjectField>)
+	static public function getDefaultProps(typeInfo:ComponentInfo, attrs:Array<ExtendedObjectField>)
 	{
 		if (typeInfo == null) return null;
 
 		if (typeInfo.props != null)
-			return typeInfo.props.copy();
+			return typeInfo.props.filter(function(defaultProp) {
+				var name = defaultProp.field;
+				for (prop in attrs) if (prop.field == name) return !prop.isConstant;
+				return true;
+			});
 
 		return null;
 	}
