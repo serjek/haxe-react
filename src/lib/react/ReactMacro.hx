@@ -197,8 +197,10 @@ class ReactMacro
 							// debug/non-debug/react_no_inline
 							// See https://github.com/facebook/react/blob/d3622d0/packages/react/src/ReactElement.js#L210
 							applyDefaultProps = function(e:Expr) {
+								var tprops = typeInfo.tprops;
+
 								return macro {
-									var __props = $e;
+									var __props = $e{tprops != null ? macro ($e :$tprops) : e};
 									@:mergeBlock $b{[for (defaultProp in defaultProps) {
 										var name = defaultProp.field;
 										macro {

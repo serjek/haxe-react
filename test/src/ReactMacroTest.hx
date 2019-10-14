@@ -268,6 +268,15 @@ class ReactMacroTest
 	}
 
 	@Test
+	public function component_with_defaultProps_and_undefined()
+	{
+		var obj:Dynamic = {};
+		var e = jsx('<CompDefaults defA={obj.missingField} defB={null} />');
+		Assert.areEqual(CompDefaults, e.type);
+		assertHasProps(e.props, ['defA', 'defB'], ['A', null]);
+	}
+
+	@Test
 	public function DOM_with_ref_function_should_be_inlined()
 	{
 		function setRef() {};
