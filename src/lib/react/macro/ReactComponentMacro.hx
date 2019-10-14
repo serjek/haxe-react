@@ -18,6 +18,7 @@ private typedef ObjectField = {field:String, expr:Expr};
 
 typedef ComponentInfo = {
 	isExtern:Bool,
+	ref:Expr,
 	tprops:Null<ComplexType>,
 	props:Array<ObjectField>
 }
@@ -162,6 +163,7 @@ class ReactComponentMacro {
 						}
 
 						componentsMap.set(key, {
+							ref: getClassRef(inClass),
 							isExtern: inClass.isExtern,
 							tprops: ct,
 							props: props.copy()
@@ -176,6 +178,7 @@ class ReactComponentMacro {
 		componentsMap.set(key, {
 			props: null,
 			tprops: null,
+			ref: getClassRef(inClass),
 			isExtern: inClass.isExtern
 		});
 	}
@@ -263,6 +266,18 @@ class ReactComponentMacro {
 			case Type.TType(_.get() => t, _): t.name;
 			default: null;
 		}
+	}
+
+	static function getClassRef(inClass:ClassType, ?pos:Position):Expr
+	{
+		if (pos == null) pos = Context.currentPos();
+
+		var mod = inClass.module;
+		if (!StringTools.endsWith(mod, '.' + inClass.name)) {
+			mod += '.' + inClass.name;
+		}
+
+		return macro @:pos(pos) $p{mod.split('.')};
 	}
 }
 #end

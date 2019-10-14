@@ -205,7 +205,7 @@ class ReactMacro
 										var name = defaultProp.field;
 										macro {
 											if (untyped __js__('{0} === undefined', __props.$name))
-												__props.$name = $e{defaultProp.expr};
+												__props.$name = @:privateAccess $e{typeInfo.ref}.defaultProps.$name;
 										};
 									}]};
 									__props;
