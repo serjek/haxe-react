@@ -1,4 +1,4 @@
 --macro react.jsx.JsxStaticMacro.addHook()
 --macro addGlobalMetadata('', '@:build(react.jsx.JsxStaticMacro.build())')
 
--D react=1.117.0
+-D react=1.118.0
