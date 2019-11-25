@@ -1,5 +1,11 @@
 package react;
+
+#if haxe4
+import js.lib.Error;
+#else
 import js.Error;
+#end
+
 import haxe.extern.EitherType;
 
 typedef ReactComponentProps = {

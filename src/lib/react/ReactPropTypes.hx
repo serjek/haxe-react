@@ -1,7 +1,12 @@
 package react;
 
-import haxe.extern.EitherType;
+#if haxe4
+import js.lib.Error;
+#else
 import js.Error;
+#end
+
+import haxe.extern.EitherType;
 import react.ReactComponent;
 
 /**
