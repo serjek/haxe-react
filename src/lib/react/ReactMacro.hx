@@ -236,7 +236,7 @@ class ReactMacro
 				macro @:pos(cond.pos) if ($cond) ${body(cons)} else ${body(alt)};
 
 			case CFor(head, expr):
-				macro @:pos(head.pos) ([for ($head) ${body.bind(expr).bounce()}]:Array<ReactFragment>);
+				macro @:pos(head.pos) ([for ($head) ${body.bind(expr).bounce()}]:Array<$REACT_FRAGMENT_CT>);
 
 			case CSwitch(target, cases):
 				ESwitch(target, [for (c in cases) {
