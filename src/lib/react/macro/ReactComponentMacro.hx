@@ -44,10 +44,17 @@ class ReactComponentMacro {
 
 		{build: ContextMacro.buildComponent, key: ContextMacro.REACT_CONTEXT_BUILDER},
 		{build: ReactTypeMacro.alterComponentSignatures, key: ReactTypeMacro.ALTER_SIGNATURES_BUILDER},
+
+		// Disable unneeded builders for completion
+		#if !display
 		{build: JsxStaticMacro.disallowInReactComponent, key: JsxStaticMacro.DISALLOW_IN_REACT_COMPONENT_BUILDER},
+		#end
+
 		{build: ReactWrapperMacro.buildComponent, key: ReactWrapperMacro.WRAP_BUILDER},
 		{build: PureComponentMacro.buildComponent, key: PureComponentMacro.PURE_COMPONENT_BUILDER},
 
+		// Disable unneeded builders for completion
+		#if !display
 		#if !react_ignore_empty_render
 		{build: ReactTypeMacro.ensureRenderOverride, key: ReactTypeMacro.ENSURE_RENDER_OVERRIDE_BUILDER},
 		#end
@@ -57,7 +64,8 @@ class ReactComponentMacro {
 		#end
 
 		#if (debug && react_runtime_warnings)
-		{build: ReactDebugMacro.buildComponent, key: ReactDebugMacro.REACT_DEBUG_BUILDER}
+		{build: ReactDebugMacro.buildComponent, key: ReactDebugMacro.REACT_DEBUG_BUILDER},
+		#end
 		#end
 	];
 
