@@ -24,6 +24,12 @@ using StringTools;
 #if (haxe_ver < 4)
 private typedef ObjectField = {field:String, expr:Expr};
 #end
+
+typedef ComponentReflection = {
+	children:ComplexType,
+	neededAttrs:Array<String>,
+	typeChecker:StringAt->Expr->Expr
+};
 #end
 
 /**
@@ -112,14 +118,16 @@ class ReactMacro
 				var isHtml = type.getString().isSuccess(); //TODO: this is a little awkward
 				if (!isHtml) JsxStaticMacro.handleJsxStaticProxy(type);
 
-				var checkProp = typeChecker(type, c.pos, isHtml);
+				var component = componentReflection(type, c.pos, isHtml);
+				var checkProp = component.typeChecker;
+				var childrenType = component.children;
+				var neededAttrs = component.neededAttrs;
+
 				var attrs = new Array<ExtendedObjectField>();
 				var spread = [];
 				var key = null;
 				var ref = null;
 				var pos = n.name.pos;
-				var neededAttrs = extractNeededAttrs(type);
-				var childrenType = extractChildrenType(type);
 
 				function add(name:StringAt, e:Expr)
 				{
@@ -224,7 +232,6 @@ class ReactMacro
 					if (key != null) attrs.unshift({field:'key', expr:key});
 
 					var props = JsxPropsBuilder.makeProps(spread, attrs, pos);
-
 					var args = [type, props].concat(children.individual);
 					macro @:pos(n.name.pos) react.React.createElement($a{args});
 				}
@@ -285,10 +292,8 @@ class ReactMacro
 		};
 	}
 
-	static function typeChecker(type:Expr, nodePos:Position, isHtml:Bool):StringAt->Expr->Expr
-	{
-		function propsFor(placeholder:Expr):StringAt->Expr->Expr
-		{
+	static function componentReflection(type:Expr, nodePos:Position, isHtml:Bool):ComponentReflection {
+		function propsFor(placeholder:Expr):StringAt->Expr->Expr {
 			placeholder = Context.storeTypedExpr(Context.typeExpr(placeholder));
 
 			var isTMono = switch (Context.typeof(placeholder)) {
@@ -414,189 +419,137 @@ class ReactMacro
 		}
 
 		return isHtml
-			? function(name:StringAt, value:Expr) {
-				#if !react_jsx_no_aria
-				// Type valid aria- attributes
-				// TODO: consider displaying warning for unknown `aria-` props
-				var field = name.value;
-				if (StringTools.startsWith(field, "aria-")) {
-					var ct = AriaAttributes.map[field];
-					if (ct != null) return macro @:pos(value.pos) (${value} :$ct);
-				}
-				#end
+			? {
+				children: REACT_FRAGMENT_CT,
+				neededAttrs: [],
+				typeChecker: function(name:StringAt, value:Expr) {
+					#if !react_jsx_no_aria
+					// Type valid aria- attributes
+					// TODO: consider displaying warning for unknown `aria-` props
+					var field = name.value;
+					if (StringTools.startsWith(field, "aria-")) {
+						var ct = AriaAttributes.map[field];
+						if (ct != null) return macro @:pos(value.pos) (${value} :$ct);
+					}
+					#end
 
-				return value;
+					return value;
+				}
 			}
 			: switch (t) {
-				case TAbstract(_.toString() => "react.ReactTypeOf", [_.toComplex() => tprops]):
-					propsFor(macro @:pos(type.pos) (null:$tprops));
+				case TAbstract(_.toString() => "react.ReactTypeOf", [tProps]):
+					var ctProps = TypeTools.toComplexType(tProps);
+					{
+						children: extractChildrenType(macro @:pos(type.pos) (null:$ctProps).children),
+						neededAttrs: extractNeededAttrs(tProps),
+						typeChecker: propsFor(macro @:pos(type.pos) (null:$ctProps))
+					};
 
 				case TFun(args, _):
 					switch (args) {
 						case []:
-							function (_, e:Expr) {
-								e.reject('no props allowed here');
-								return e;
-							}
+							{
+								children: macro :react.Empty,
+								neededAttrs: [],
+								typeChecker: function (_, e:Expr) {
+									e.reject('no props allowed here');
+									return e;
+								}
+							};
 
 						case [v]:
-							propsFor(macro @:pos(type.pos) {
-								var o = null;
-								$type(o);
-								o;
-							});
+							{
+								children: extractChildrenType(macro @:pos(type.pos) {
+									var o = null;
+									$type(o);
+									o.children;
+								}),
+								neededAttrs: extractNeededAttrs(v.t),
+								typeChecker: propsFor(macro @:pos(type.pos) {
+									var o = null;
+									$type(o);
+									o;
+								})
+							};
 
 						case v:
 							throw 'assert'; //TODO: do something meaningful here
 					}
 
 				case TInst(_.toString() => "String", []):
-					function(_, e:Expr) return e;
+					{
+						children: macro :react.Empty,
+						neededAttrs: [],
+						typeChecker: function(_, e:Expr) return e
+					};
 
 				default:
-					propsFor(macro @:pos(type.pos) {
+					var typeExpr = macro @:pos(type.pos) {
 						function get<T>(c:Class<T>):T return null;
 						@:privateAccess get($type).props;
-					});
+					};
+
+					{
+						children: extractChildrenType(macro @:pos(type.pos) {
+							function get<T>(c:Class<T>):T return null;
+							@:privateAccess get($type).props.children;
+						}),
+						neededAttrs: extractNeededAttrs(Context.typeof(typeExpr)),
+						typeChecker: propsFor(typeExpr)
+					};
 			}
 	}
 
-	static function isReactFragment(type:Null<ComplexType>):Bool {
-		if (type == null) return false;
-
-		return switch (type) {
-			case TPath({name: "StdTypes", sub: "Null", params: [TPType(type)]}):
-				isReactFragment(type);
-
-			case TPath({name: "ReactComponent", sub: "ReactFragment", pack: ["react"]}):
-				true;
-
-			default:
-				false;
-		};
-	}
-
-	static function extractChildrenType(type:Expr):ComplexType
-	{
+	static function extractChildrenType(type:Expr):ComplexType {
 		try {
-			switch (Context.typeof(type)) {
-				case TType(_, _):
-					var tprops = Context.storeTypedExpr(Context.typeExpr(macro @:pos(type.pos) {
-						function get<T>(c:Class<T>):T return null;
-						@:privateAccess get($type).props;
-					}));
-
-					switch (Context.typeof(tprops)) {
-						case TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _):
-							var childType = extractChildrenTypeFromFields(fields);
-							if (isReactFragment(childType)) return REACT_FRAGMENT_CT;
-							if (childType != null) return childType;
-
-						default:
-					}
-
-				case TFun([{t: _ => Context.follow(_) => TAnonymous(_.get().fields => fields)}], _),
-				TFun([{t: TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _)}], _):
-					var childType = extractChildrenTypeFromFields(fields);
-					if (isReactFragment(childType)) return REACT_FRAGMENT_CT;
-					if (childType != null) return childType;
-
-				case TAbstract(a, params):
-					var childType = extractChildrenTypeFromAbstract(a, params);
-					if (isReactFragment(childType)) return REACT_FRAGMENT_CT;
-					if (childType != null) return childType;
-
-				case TFun([], _):
-				case TInst(_.toString() => "String", []):
-				case TFun([{t: TMono(_)}], _):
-					// Nothing to do here
-
-				default:
-					Context.warning(
-						'Cannot get children type for ${ExprTools.toString(type)}',
-						type.pos
-					);
-			}
-
+			var t = Context.typeof(type);
+			return TypeTools.toComplexType(t);
 		} catch (e:Dynamic) {}
 
 		return REACT_FRAGMENT_CT;
 	}
 
-	static function extractChildrenTypeFromAbstract(a:Ref<AbstractType>, params:Array<Type>):ComplexType
-	{
-		switch (a.toString()) {
-			case "Null":
-				switch (params[0]) {
-					case TAbstract(a, params):
-						return extractChildrenTypeFromAbstract(a, params);
+	static var neededAttrsCache:Map<String, Array<String>> = new Map();
+	static function extractNeededAttrs(type:Type) {
+		// Not needed for completion
+		if (Context.defined('display')) return [];
 
-					default:
-				};
+		var key = Std.string(type);
+		if (neededAttrsCache.exists(key)) return neededAttrsCache.get(key);
 
-			case "react.ReactTypeOf":
-				switch (params[0]) {
-					case TType(_.get() => {type: TAnonymous(_.get().fields => fields)}, _):
-						return extractChildrenTypeFromFields(fields);
-
-					case TInst(_.get().fields.get() => fields, _):
-						return extractChildrenTypeFromFields(fields);
-
-					case TAnonymous(_.get().fields => fields):
-						return extractChildrenTypeFromFields(fields);
-
-					default:
-				}
-
-			case "react.ReactType":
-			default:
-		};
-
-		return null;
-	}
-
-	static function extractChildrenTypeFromFields(
-		fields:Array<{name:String, type:Type}>
-	):Null<ComplexType>
-	{
-		for (f in fields)
-			if (f.name == 'children')
-				return TypeTools.toComplexType(f.type);
-
-		return null;
-	}
-
-	static function extractNeededAttrs(type:Expr)
-	{
 		var neededAttrs = [];
 
-		try {
-			switch (Context.typeof(type)) {
-				case TType(_, _):
-					var tprops = Context.storeTypedExpr(Context.typeExpr(macro @:pos(type.pos) {
-						function get<T>(c:Class<T>):T return null;
-						@:privateAccess get($type).props;
-					}));
+		function hasEmptyAttrs(name:String):Bool {
+			return switch (name) {
+				case "react.Empty": true;
+				case "react.BasePropsWithoutChildren": true;
+				case "react.BasePropsWithOptChild": true;
+				case "react.BasePropsWithOptChildren": true;
+				case _: false;
+			};
+		}
 
-					switch (Context.typeof(tprops)) {
-						case TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _):
-							for (f in fields)
-								if (!f.meta.has(':optional'))
-									neededAttrs.push(f.name);
+		function hasOnlyChildren(name:String):Bool {
+			return switch (name) {
+				case "react.BasePropsWithChild": true;
+				case "react.BasePropsWithChildren": true;
+				case _: false;
+			};
+		}
 
-						default:
-					}
+		switch (type) {
+			case TType(_.toString() => name, []) if (hasEmptyAttrs(name)):
+			case TType(_.toString() => name, []) if (hasOnlyChildren(name)):
+				neededAttrs.push("children");
 
-				case TFun([{t: TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _)}], _):
-					for (f in fields)
-						if (!f.meta.has(':optional'))
-							neededAttrs.push(f.name);
+			case TAnonymous(_.get().fields => fields) |
+			TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _):
+				for (f in fields) if (!f.meta.has(':optional')) neededAttrs.push(f.name);
 
-				default:
-			}
+			default:
+		}
 
-		} catch (e:Dynamic) {}
-
+		neededAttrsCache.set(key, neededAttrs);
 		return neededAttrs;
 	}
 	#end
