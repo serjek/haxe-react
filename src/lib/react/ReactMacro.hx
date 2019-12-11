@@ -26,7 +26,7 @@ private typedef ObjectField = {field:String, expr:Expr};
 #end
 
 typedef ComponentReflection = {
-	children:ComplexType,
+	children:Void->ComplexType,
 	neededAttrs:Array<String>,
 	typeChecker:StringAt->Expr->Expr
 };
@@ -69,23 +69,29 @@ class ReactMacro
 	#if macro
 	static var REACT_FRAGMENT_CT = macro :react.ReactComponent.ReactFragment;
 
-	static function children(c:tink.hxx.Children, type:ComplexType)
-	{
+	static function children(c:tink.hxx.Children, getChildrenType:Void->ComplexType) {
+		var lazyType:ComplexType = null;
+
 		var exprs = switch (c) {
 			case null | { value: null }: [];
 
-			case _ if (type == REACT_FRAGMENT_CT):
-				[for (c in tink.hxx.Generator.normalize(c.value)) macro @:pos(c.pos) (${child(c)}:$type)];
-
 			default:
-				[for (c in tink.hxx.Generator.normalize(c.value)) macro @:pos(c.pos) ${child(c)}];
+				lazyType = getChildrenType();
+
+				if (lazyType == REACT_FRAGMENT_CT)
+					[for (c in tink.hxx.Generator.normalize(c.value)) macro @:pos(c.pos) (${child(c)}:$lazyType)];
+				else
+					[for (c in tink.hxx.Generator.normalize(c.value)) macro @:pos(c.pos) ${child(c)}];
 		};
 
 		return {
 			individual: exprs,
 			compound: switch (exprs) {
 				case []: null;
-				case [v]: macro @:pos(c.pos) (${v}:$type);
+				case [v]:
+					if (lazyType == null) lazyType = getChildrenType();
+					macro @:pos(c.pos) (${v}:$lazyType);
+
 				case a: macro @:pos(c.pos) $a{a};
 			}
 		};
@@ -233,7 +239,7 @@ class ReactMacro
 
 					var props = JsxPropsBuilder.makeProps(spread, attrs, pos);
 					var args = [type, props].concat(children.individual);
-					macro @:pos(n.name.pos) react.React.createElement($a{args});
+					macro @:pos(c.pos) react.React.createElement($a{args});
 				}
 
 			case CSplat(_):
@@ -281,7 +287,7 @@ class ReactMacro
 	{
 		if (c == null) return macro null;
 
-		var childrenArr = children(c, REACT_FRAGMENT_CT).individual;
+		var childrenArr = children(c, function() return REACT_FRAGMENT_CT).individual;
 		return switch (childrenArr.length) {
 			case 0: macro null;
 			case 1: childrenArr[0];
@@ -292,7 +298,11 @@ class ReactMacro
 		};
 	}
 
-	static function componentReflection(type:Expr, nodePos:Position, isHtml:Bool):ComponentReflection {
+	static function componentReflection(
+		type:Expr,
+		nodePos:Position,
+		isHtml:Bool
+	):ComponentReflection {
 		function propsFor(placeholder:Expr):StringAt->Expr->Expr {
 			placeholder = Context.storeTypedExpr(Context.typeExpr(placeholder));
 
@@ -420,7 +430,7 @@ class ReactMacro
 
 		return isHtml
 			? {
-				children: REACT_FRAGMENT_CT,
+				children: function() return REACT_FRAGMENT_CT,
 				neededAttrs: [],
 				typeChecker: function(name:StringAt, value:Expr) {
 					#if !react_jsx_no_aria
@@ -440,16 +450,16 @@ class ReactMacro
 				case TAbstract(_.toString() => "react.ReactTypeOf", [tProps]):
 					var ctProps = TypeTools.toComplexType(tProps);
 					{
-						children: extractChildrenType(macro @:pos(type.pos) (null:$ctProps).children),
+						children: extractChildrenType(macro @:pos(nodePos) (null:$ctProps).children),
 						neededAttrs: extractNeededAttrs(tProps),
-						typeChecker: propsFor(macro @:pos(type.pos) (null:$ctProps))
+						typeChecker: propsFor(macro @:pos(nodePos) (null:$ctProps))
 					};
 
 				case TFun(args, _):
 					switch (args) {
 						case []:
 							{
-								children: macro :react.Empty,
+								children: function() return macro :react.Empty,
 								neededAttrs: [],
 								typeChecker: function (_, e:Expr) {
 									e.reject('no props allowed here');
@@ -459,13 +469,13 @@ class ReactMacro
 
 						case [v]:
 							{
-								children: extractChildrenType(macro @:pos(type.pos) {
+								children: extractChildrenType(macro @:pos(nodePos) {
 									var o = null;
 									$type(o);
 									o.children;
 								}),
 								neededAttrs: extractNeededAttrs(v.t),
-								typeChecker: propsFor(macro @:pos(type.pos) {
+								typeChecker: propsFor(macro @:pos(nodePos) {
 									var o = null;
 									$type(o);
 									o;
@@ -478,19 +488,19 @@ class ReactMacro
 
 				case TInst(_.toString() => "String", []):
 					{
-						children: macro :react.Empty,
+						children: function() return macro :react.Empty,
 						neededAttrs: [],
 						typeChecker: function(_, e:Expr) return e
 					};
 
 				default:
-					var typeExpr = macro @:pos(type.pos) {
+					var typeExpr = macro @:pos(nodePos) {
 						function get<T>(c:Class<T>):T return null;
 						@:privateAccess get($type).props;
 					};
 
 					{
-						children: extractChildrenType(macro @:pos(type.pos) {
+						children: extractChildrenType(macro @:pos(nodePos) {
 							function get<T>(c:Class<T>):T return null;
 							@:privateAccess get($type).props.children;
 						}),
@@ -500,13 +510,15 @@ class ReactMacro
 			}
 	}
 
-	static function extractChildrenType(type:Expr):ComplexType {
-		try {
-			var t = Context.typeof(type);
-			return TypeTools.toComplexType(t);
-		} catch (e:Dynamic) {}
+	static function extractChildrenType(type:Expr):Void->ComplexType {
+		return function() {
+			try {
+				var t = Context.typeof(type);
+				return TypeTools.toComplexType(t);
+			} catch (e:Dynamic) {}
 
-		return REACT_FRAGMENT_CT;
+			return REACT_FRAGMENT_CT;
+		}
 	}
 
 	static var neededAttrsCache:Map<String, Array<String>> = new Map();
