@@ -49,7 +49,7 @@ class ReactMacro
 
 		function children(c:Children)
 			return switch c.value {
-				case [v]: child(v);
+				case [v]: @:pos(c.pos) child(v);
 				case []: expr.reject('empty jsx');
 				default: expr.reject('only one node allowed here');
 			};
@@ -292,7 +292,7 @@ class ReactMacro
 			case 0: macro null;
 			case 1: childrenArr[0];
 			default:
-				macro react.React.createElement($a{
+				macro @:pos(c.pos) react.React.createElement($a{
 					[macro react.Fragment, macro null].concat(childrenArr)
 				});
 		};
