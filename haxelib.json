@@ -6,8 +6,8 @@
   "contributors": [
     "klabz"
   ],
-  "releasenote": "Haxe 4 deprecation warnings",
-  "version": "1.118.1",
+  "releasenote": "Compilation time improvements",
+  "version": "1.119.0",
   "url": "https://github.com/kLabz/haxe-react",
   "classPath": "src/lib",
   "dependencies": {
