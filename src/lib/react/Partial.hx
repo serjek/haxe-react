@@ -18,15 +18,21 @@ class Partial<T> {}
 @:dce
 class PartialMacro {
 	#if macro
-	static function build()
-	{
-		switch Context.getLocalType()
-		{
+	static var cache:Map<String, ComplexType> = new Map();
+
+	static function build() {
+		var localType = Context.getLocalType();
+		var cacheKey = TypeTools.toString(localType);
+		if (cache.exists(cacheKey)) return cache.get(cacheKey);
+
+		switch (localType) {
 			// Match when class's type parameter leads to an anonymous type (we convert to a complex type in the process to make it easier to work with)
 			case TInst(_, [Context.followWithAbstracts(_) => TypeTools.toComplexType(_) => TAnonymous(fields)]):
 				// Add @:optional meta to all fields
 				var newFields = fields.map(addMeta);
-				return TAnonymous(newFields);
+				var ret = TAnonymous(newFields);
+				cache.set(cacheKey, ret);
+				return ret;
 
 			default:
 				Context.fatalError('Type parameter should be an anonymous structure', Context.currentPos());
@@ -35,8 +41,7 @@ class PartialMacro {
 		return null;
 	}
 
-	static function addMeta(field: Field): Field
-	{
+	static function addMeta(field: Field): Field {
 		// Handle Null<T> and optional fields already parsed by the compiler
 		var kind = switch (field.kind) {
 			case FVar(TPath({
