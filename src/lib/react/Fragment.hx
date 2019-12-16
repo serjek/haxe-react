@@ -1,5 +1,6 @@
 package react;
 
+import react.BaseProps;
 import react.ReactComponent;
 
 /**
@@ -10,5 +11,5 @@ import react.ReactComponent;
 @:jsRequire("react", "Fragment")
 #end
 @:native('React.Fragment')
-extern class Fragment extends ReactComponentOfProps<Empty> {}
+extern class Fragment extends ReactComponentOfProps<BasePropsWithOptChildren> {}
 
