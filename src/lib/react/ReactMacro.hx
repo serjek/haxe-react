@@ -127,7 +127,7 @@ class ReactMacro
 				var component = componentReflection(type, c.pos, isHtml);
 				var checkProp = component.typeChecker;
 				var childrenType = component.children;
-				var neededAttrs = component.neededAttrs;
+				var neededAttrs = component.neededAttrs.copy();
 
 				var attrs = new Array<ExtendedObjectField>();
 				var spread = [];
