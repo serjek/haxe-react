@@ -147,4 +147,7 @@ typedef ReactElement = {
 	from ReactSingleFragment
 	from Array<ReactFragment>
 	from Array<ReactElement>
+	from Array<String>
+	from Array<Float>
+	from Array<Bool>
 	from Array<ReactSingleFragment> {}
