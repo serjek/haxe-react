@@ -443,6 +443,11 @@ class ReactMacro
 					}
 					#end
 
+					#if (css_types && !react_jsx_no_css_types)
+					if (name.value == "style")
+						return macro @:pos(value.pos) (${value} :haxe.extern.EitherType<css.Properties, String>);
+					#end
+
 					return value;
 				}
 			}
