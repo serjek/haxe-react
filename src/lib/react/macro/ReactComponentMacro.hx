@@ -141,7 +141,11 @@ class ReactComponentMacro {
 	static public function buildVariadic():ComplexType {
 		return switch (Context.getLocalType()) {
 			case TInst(_, []):
+				#if react_disable_dynamic_components
+				return macro :react.ReactComponent.ReactComponentOf<react.Empty, react.Empty>;
+				#else
 				return macro :react.ReactComponent.ReactComponentOf<Dynamic, Dynamic>;
+				#end
 
 			case TInst(_, [tprops]):
 				var ctprops = TypeTools.toComplexType(tprops);
