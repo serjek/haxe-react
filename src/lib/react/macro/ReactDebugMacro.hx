@@ -27,15 +27,13 @@ class ReactDebugMacro
 		var propsType = macro :Dynamic;
 		var stateType = macro :Dynamic;
 
-		switch (inClass.superClass)
-		{
+		switch (inClass.superClass) {
 			case {params: params, t: _.toString() => cls}
 			if (cls == 'react.ReactComponentOf' || cls == 'react.PureComponentOf'):
 				propsType = TypeTools.toComplexType(params[0]);
 				stateType = TypeTools.toComplexType(params[1]);
 
 			default:
-				throw 'Invalid component';
 		}
 
 		#if !react_runtime_warnings_ignore_rerender

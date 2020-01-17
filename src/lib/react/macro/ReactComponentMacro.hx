@@ -112,9 +112,22 @@ class ReactComponentMacro {
 		builders.insert(index, {build: builder, key: key});
 	}
 
-	static public function build():Array<Field>
-	{
+	static public function build():Array<Field> {
 		var inClass = Context.getLocalClass().get();
+
+		#if !react_skip_extend_component_restriction
+		switch (inClass.superClass) {
+			case {params: params, t: _.toString() => cls}
+			if (cls == 'react.ReactComponentOf' || cls == 'react.PureComponentOf'):
+				// Ok
+
+			default:
+				Context.fatalError(
+					'A react component must be a direct child of either `ReactComponent` or `PureComponent`.',
+					inClass.pos
+				);
+		}
+		#end
 
 		return Lambda.fold(
 			builders,
@@ -146,8 +159,7 @@ class ReactComponentMacro {
 	/**
 	 * Process React components
 	 */
-	static public function buildComponent(inClass:ClassType, fields:Array<Field>):Array<Field>
-	{
+	static public function buildComponent(inClass:ClassType, fields:Array<Field>):Array<Field> {
 		var pos = Context.currentPos();
 
 		#if (!debug && !react_no_inline)
