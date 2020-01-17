@@ -125,6 +125,24 @@ class ReactComponentMacro {
 
 	/* METADATA */
 
+	static public function buildVariadic():ComplexType {
+		return switch (Context.getLocalType()) {
+			case TInst(_, []):
+				return macro :react.ReactComponent.ReactComponentOf<Dynamic, Dynamic>;
+
+			case TInst(_, [tprops]):
+				var ctprops = TypeTools.toComplexType(tprops);
+				return macro :react.ReactComponent.ReactComponentOf<$ctprops, Empty>;
+
+			case TInst(_, [tprops, tstate]):
+				var ctprops = TypeTools.toComplexType(tprops);
+				var ctstate = TypeTools.toComplexType(tstate);
+				return macro :react.ReactComponent.ReactComponentOf<$ctprops, $ctstate>;
+
+			default: throw false;
+		}
+	}
+
 	/**
 	 * Process React components
 	 */

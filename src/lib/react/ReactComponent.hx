@@ -17,8 +17,19 @@ typedef ReactComponentProps = {
 
 /**
 	https://facebook.github.io/react/docs/react-component.html
+
+	Can be used as:
+	- `ReactComponent`, which means TProps = Dynamic and TState = Dynamic (not
+	recommended, but can help when starting to write externs)
+
+	- `ReactComponent<TProps>` which means your component doesn't have a state
+	- `ReactComponent<TProps, TState>`
+
+	For a component with state and no props, continue using
+	`ReactComponentOfState`.
 **/
-typedef ReactComponent = ReactComponentOf<Dynamic, Dynamic>;
+@:genericBuild(react.macro.ReactComponentMacro.buildVariadic())
+class ReactComponent<Rest> {}
 
 typedef ReactComponentOfProps<TProps:{}> = ReactComponentOf<TProps, Empty>;
 typedef ReactComponentOfState<TState:{}> = ReactComponentOf<Empty, TState>;
