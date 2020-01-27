@@ -6,8 +6,8 @@
   "contributors": [
     "klabz"
   ],
-  "releasenote": "Compilation time improvements",
-  "version": "1.119.0",
+  "releasenote": "Variadic type parameters for ReactComponent, some fixes",
+  "version": "1.120.0",
   "url": "https://github.com/kLabz/haxe-react",
   "classPath": "src/lib",
   "dependencies": {
