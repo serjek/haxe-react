@@ -95,7 +95,7 @@ extern interface ReactChildren
 	/**
 		https://reactjs.org/docs/react-api.html#reactchildrenmap
 	**/
-	function map(children:Dynamic, fn:ReactFragment->ReactFragment):Null<Array<ReactFragment>>;
+	function map(children:Dynamic, fn:Array<ReactFragment>->ReactFragment):Null<Array<ReactFragment>>;
 
 	/**
 		https://reactjs.org/docs/react-api.html#reactchildrenforeach
