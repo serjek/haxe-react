@@ -84,17 +84,21 @@ class ReactWrapperMacro
 				);
 
 			var e = publicProps.params[0];
-			var tprops = Context.getType(switch (e.expr) {
-				case EConst(CString(str)), EConst(CIdent(str)): str;
-				case EField(_, _): ExprTools.toString(e);
+			var tprops = try {
+				Context.getType(switch (e.expr) {
+					case EConst(CString(str)), EConst(CIdent(str)): str;
+					case EField(_, _): ExprTools.toString(e);
 
-				default:
-					Context.error(
-						'@${ReactMeta.PublicProps}: unsupported argument; '
-						+ 'expected a type identifier.',
-						publicProps.pos
-					);
-			});
+					default:
+						Context.error(
+							'@${ReactMeta.PublicProps}: unsupported argument; '
+							+ 'expected a type identifier.',
+							publicProps.pos
+						);
+				});
+			} catch (e:String) {
+				Context.error(e, publicProps.params[0].pos);
+			}
 
 			return TypeTools.toComplexType(tprops);
 		}
