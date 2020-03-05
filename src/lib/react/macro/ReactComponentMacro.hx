@@ -116,16 +116,18 @@ class ReactComponentMacro {
 		var inClass = Context.getLocalClass().get();
 
 		#if !react_skip_extend_component_restriction
-		switch (inClass.superClass) {
-			case {params: params, t: _.toString() => cls}
-			if (cls == 'react.ReactComponentOf' || cls == 'react.PureComponentOf'):
-				// Ok
+		if (!inClass.isExtern) {
+			switch (inClass.superClass) {
+				case {params: params, t: _.toString() => cls}
+				if (cls == 'react.ReactComponentOf' || cls == 'react.PureComponentOf'):
+					// Ok
 
-			default:
-				Context.fatalError(
-					'A react component must be a direct child of either `ReactComponent` or `PureComponent`.',
-					inClass.pos
-				);
+				default:
+					Context.fatalError(
+						'A react component must be a direct child of either `ReactComponent` or `PureComponent`.',
+						inClass.pos
+					);
+			}
 		}
 		#end
 
