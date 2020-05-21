@@ -137,7 +137,7 @@ xml markup in `render` (and also `renderSomething`) functions in classes
 extending `ReactComponent` in a call to `ReactMacro.jsx()`, as well as in the
 methods used in `@:jsxStatic(myMethod)`.
 
-Not that this feature has been reported to be incompatible with `cococonut`.
+Note that this feature has been reported to be incompatible with `cococonut`.
 
 [affd6e4a]: https://github.com/kLabz/haxe-react/commit/affd6e4a
 [aria-specs]: https://www.w3.org/TR/wai-aria-1.1/#state_prop_def
