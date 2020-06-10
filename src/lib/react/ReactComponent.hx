@@ -47,11 +47,13 @@ extern class ReactComponentOf<TProps:{}, TState:{}>
 {
 	#if haxe4
 	final props:TProps;
-	final state:TState;
 	#else
 	var props(default, null):TProps;
-	var state(default, null):TState;
 	#end
+
+	// Note: cannot use final for haxe 4.1.0 - 4.1.1 because of
+	// https://github.com/HaxeFoundation/haxe/issues/9552
+	var state(default, null):TState;
 
 	#if react_deprecated_context
 	// It's better to define it in your ReactComponent subclass as needed, with the right typing.
