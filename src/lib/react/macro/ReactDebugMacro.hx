@@ -104,7 +104,7 @@ class ReactDebugMacro
 	{
 		return macro {
 			if (state == null) {
-				js.Browser.console.error(
+				js.Browser.console.error($v{
 					'Warning: component ${inClass.name} is stateful but its '
 					+ '`state` is not initialized inside its constructor.\n\n'
 
@@ -116,7 +116,7 @@ class ReactDebugMacro
 					+ 'consider using `@:jsxStatic` to avoid unneeded lifecycle. '
 					+ 'See https://github.com/kLabz/haxe-react/blob/next/doc/static-components.md '
 					+ 'for more information on static components.'
-				);
+				});
 			}
 		};
 	}
@@ -214,13 +214,13 @@ class ReactDebugMacro
 			if (react.macro.ReactDebugMacro.firstRenderWarning) {
 				react.macro.ReactDebugMacro.firstRenderWarning = false;
 
-				js.Browser.console.warn(
+				js.Browser.console.warn($v{
 					'Make sure your props are flattened, or implement shouldComponentUpdate.\n' +
 					'See https://facebook.github.io/react/docs/optimizing-performance.html#shouldcomponentupdate-in-action' +
 					'\n\nAlso note that legacy context API can trigger false positives if children ' +
 					'rely on context. You can hide this warning for a specific component by adding ' +
 					'`@${ReactMeta.IgnoreRenderWarning}` meta to its class.'
-				);
+				});
 			}
 		}
 
@@ -228,20 +228,20 @@ class ReactDebugMacro
 			return macro {
 				var propsChanges = react.ReactUtil.shallowChanges(props, prevProps);
 				if (propsChanges != null) {
-					js.Browser.console.log('Props changed for `${$v{inClass.name}}`.');
+					js.Browser.console.log($v{'Props changed for `${inClass.name}`.'});
 					js.Browser.console.log(propsChanges);
 				}
 
 				var stateChanges = react.ReactUtil.shallowChanges(state, prevState);
 				if (stateChanges != null) {
-					js.Browser.console.log('State changed for `${$v{inClass.name}}`.');
+					js.Browser.console.log($v{'State changed for `${inClass.name}`.'});
 					js.Browser.console.log(stateChanges);
 				}
 
 				if (propsChanges == null && stateChanges == null) {
-					js.Browser.console.warn(
-						'Warning: avoidable re-render of `${$v{inClass.name}}`.'
-					);
+					js.Browser.console.warn($v{
+						'Warning: avoidable re-render of `${inClass.name}`.'
+					});
 
 					${displayLongWarning}
 				}
@@ -275,12 +275,12 @@ class ReactDebugMacro
 					debugProps.prevProps = $i{prevProps};
 
 					js.Browser.console.warn(
-						'Warning: avoidable re-render of `${$v{inClass.name}}`.\n',
+						$v{'Warning: avoidable re-render of `${inClass.name}`.\n'},
 						debugProps
 					);
 				} : macro {
 					js.Browser.console.warn(
-						'Warning: avoidable re-render of `${$v{inClass.name}}`.'
+						$v{'Warning: avoidable re-render of `${inClass.name}`.\n'}
 					);
 				}};
 
