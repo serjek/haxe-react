@@ -451,7 +451,8 @@ class ReactMacro
 				}
 			}
 			: switch (t) {
-				case TAbstract(_.toString() => "react.ReactTypeOf", [tProps]):
+				case TAbstract(_.toString() => "react.ReactTypeOf", [tProps])
+				| TAbstract(_.toString() => "Null", [TAbstract(_.toString() => "react.ReactTypeOf", [tProps])]):
 					var ctProps = TypeTools.toComplexType(tProps);
 					{
 						children: extractChildrenType(macro @:pos(nodePos) (null:$ctProps).children),
