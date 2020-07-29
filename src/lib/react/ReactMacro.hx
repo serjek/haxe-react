@@ -318,9 +318,9 @@ class ReactMacro
 				// Handle components accepting more than their own props
 				try {
 					Context.typeof(target);
-				} catch (e:haxe.Exception) {
+				} catch (e:Dynamic) {
 					var reg = new EReg('has no field $field($| \\(Suggestion: \\w+\\))', '');
-					if (reg.match(e.message)) {
+					if (reg.match(Std.string(e))) {
 						switch (Context.typeof(type)) {
 							case TType(_.get().type => TAnonymous(_.get() => {
 								status: AClassStatics(_.get() => t)
