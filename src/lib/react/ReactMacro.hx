@@ -92,7 +92,7 @@ class ReactMacro
 					if (lazyType == null) lazyType = getChildrenType();
 					macro @:pos(c.pos) (${v}:$lazyType);
 
-				case a: macro @:pos(c.pos) $a{a};
+				case a: macro @:pos(c.pos) ($a{a} :Array<$REACT_FRAGMENT_CT>);
 			}
 		};
 	}
