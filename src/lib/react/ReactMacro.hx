@@ -535,8 +535,12 @@ class ReactMacro
 		// Not needed for completion
 		if (Context.defined('display')) return [];
 
+		// TODO: better serialization to enable cache for those too
 		var key = Std.string(type);
-		if (neededAttrsCache.exists(key)) return neededAttrsCache.get(key);
+		var ignoredKeys = ["TAnonymous(<anonymous>)"];
+		if (!ignoredKeys.contains(key) && neededAttrsCache.exists(key)) {
+			return neededAttrsCache.get(key);
+		}
 
 		var neededAttrs = [];
 
