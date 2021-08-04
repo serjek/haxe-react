@@ -139,5 +139,15 @@ methods used in `@:jsxStatic(myMethod)`.
 
 Note that this feature has been reported to be incompatible with `cococonut`.
 
+## `-D react.setStateProfiler` (haxe 4 only)
+
+Add runtime warnings when `setState` calls take more than 100ms, which can
+indicate performance issues.
+
+TODO: more documentation
+
+See [setState may be synchronous][synchronous-setState]
+
 [affd6e4a]: https://github.com/kLabz/haxe-react/commit/affd6e4a
 [aria-specs]: https://www.w3.org/TR/wai-aria-1.1/#state_prop_def
+[synchronous-setState]: https://www.bennadel.com/blog/2893-setstate-state-mutation-operation-may-be-synchronous-in-reactjs.htm

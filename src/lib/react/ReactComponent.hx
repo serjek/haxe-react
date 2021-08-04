@@ -70,9 +70,14 @@ extern class ReactComponentOf<TProps:{}, TState:{}>
 	/**
 		https://facebook.github.io/react/docs/react-component.html#setstate
 	**/
+	#if react.setStateProfiler @:native('setState') #end
 	@:overload(function(nextState:TState, ?callback:Void -> Void):Void {})
 	@:overload(function(nextState:TState -> TProps -> TState, ?callback:Void -> Void):Void {})
+	#if react.setStateProfiler
+	function _setState(nextState:TState -> TState, ?callback:Void -> Void):Void;
+	#else
 	function setState(nextState:TState -> TState, ?callback:Void -> Void):Void;
+	#end
 
 	/**
 		https://facebook.github.io/react/docs/react-component.html#render

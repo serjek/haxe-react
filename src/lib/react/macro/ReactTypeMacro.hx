@@ -27,7 +27,7 @@ class ReactTypeMacro
 			case TPath({name: "Empty", pack: ["react"]}), TPath({name: "Dynamic", pack: []}):
 
 			case TPath(_) | TAnonymous(_) if (!hasSetState(fields)):
-				addSetStateType(fields, inClass, tprops, tstate);
+				fields = addSetStateType(fields, inClass, tprops, tstate);
 
 			default:
 		}
@@ -88,7 +88,7 @@ class ReactTypeMacro
 	static function hasSetState(fields:Array<Field>) {
 		for (field in fields)
 		{
-			if (field.name == 'setState')
+			if (field.name == #if react.setStateProfiler '_setState' #else 'setState' #end)
 			{
 				return switch (field.kind) {
 					case FFun(f): true;
@@ -105,8 +105,40 @@ class ReactTypeMacro
 		inClass:ClassType,
 		propsType:ComplexType,
 		stateType:ComplexType
-	) {
-		fields.push((macro class C {
+	):Array<Field> {
+		#if react.setStateProfiler
+		return fields.concat((macro class C {
+			@:native('__setStateProfiler')
+			@:overload(function(nextState:react.Partial<$stateType>, ?callback:Void -> Void):Void {})
+			@:overload(function(nextState:$stateType -> $propsType -> react.Partial<$stateType>, ?callback:Void -> Void):Void {})
+			function setState(nextState:$stateType -> react.Partial<$stateType>, ?callback:Void -> Void):Void {
+				var start = haxe.Timer.stamp();
+				_setState(nextState, callback);
+				var delta = haxe.Timer.stamp() - start;
+
+				if (delta > 0.1) {
+					js.Browser.console.warn(
+						$v{inClass.name}
+						+ '.setState() took more than 100ms (' + Math.round(delta * 1000) + 'ms), '
+						+ 'which seems to indicate that it triggered an immediate render'
+						// TODO: more documentation on first warning
+						// See https://www.bennadel.com/blog/2893-setstate-state-mutation-operation-may-be-synchronous-in-reactjs.htm
+					);
+				}
+			}
+
+			@:extern
+			@:native('setState')
+			@:overload(function(nextState:react.Partial<$stateType>, ?callback:Void -> Void):Void {})
+			@:overload(function(nextState:$stateType -> $propsType -> react.Partial<$stateType>, ?callback:Void -> Void):Void {})
+			override public function _setState(nextState:$stateType -> react.Partial<$stateType>, ?callback:Void -> Void):Void
+				#if !haxe4
+				{ super._setState(nextState, callback); }
+				#end
+			;
+		}).fields);
+		#else
+		return fields.concat((macro class C {
 			@:extern
 			@:overload(function(nextState:react.Partial<$stateType>, ?callback:Void -> Void):Void {})
 			@:overload(function(nextState:$stateType -> $propsType -> react.Partial<$stateType>, ?callback:Void -> Void):Void {})
@@ -115,7 +147,8 @@ class ReactTypeMacro
 				{ super.setState(nextState, callback); }
 				#end
 			;
-		}).fields[0]);
+		}).fields);
+		#end
 	}
 
 	#end
