@@ -168,7 +168,7 @@ class ReactComponentMacro {
 	static public function buildComponent(inClass:ClassType, fields:Array<Field>):Array<Field> {
 		var pos = Context.currentPos();
 
-		#if (!debug && !react_no_inline)
+		#if (react_force_inline || (!debug && !react_no_inline))
 		storeComponentInfos(fields, inClass, pos);
 		#end
 

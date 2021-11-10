@@ -119,7 +119,7 @@ extern class ReactComponentOf<TProps:{}, TState:{}>
 	**/
 	function componentDidCatch(error:Error, info:{ componentStack:String }):Void;
 
-	#if (js && !debug && !react_no_inline)
+	#if (js && (react_force_inline || (!debug && !react_no_inline)))
 	static function __init__():Void {
 		// required magic value to tag literal react elements
 		#if haxe4

@@ -34,7 +34,7 @@ class JsxLiteral {
 
 	static public function canUseLiteral(typeInfo:ComponentInfo, ref:Expr)
 	{
-		#if (debug || react_no_inline)
+		#if (!react_force_inline && (debug || react_no_inline))
 		return false;
 		#end
 
