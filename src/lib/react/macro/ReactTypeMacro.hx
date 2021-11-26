@@ -109,9 +109,9 @@ class ReactTypeMacro
 		#if react.setStateProfiler
 		return fields.concat((macro class C {
 			@:native('__setStateProfiler')
-			@:overload(function(nextState:react.Partial<$stateType>, ?callback:Void -> Void):Void {})
-			@:overload(function(nextState:$stateType -> $propsType -> react.Partial<$stateType>, ?callback:Void -> Void):Void {})
-			function setState(nextState:$stateType -> react.Partial<$stateType>, ?callback:Void -> Void):Void {
+			@:overload(function(nextState:react.Partial<$stateType>, ?callback:Void -> Void, ?pos:haxe.PosInfos):Void {})
+			@:overload(function(nextState:$stateType -> $propsType -> react.Partial<$stateType>, ?callback:Void -> Void, ?pos:haxe.PosInfos):Void {})
+			function setState(nextState:$stateType -> react.Partial<$stateType>, ?callback:Void -> Void, ?pos:haxe.PosInfos):Void {
 				var start = haxe.Timer.stamp();
 				_setState(nextState, callback);
 				var delta = haxe.Timer.stamp() - start;
@@ -121,9 +121,11 @@ class ReactTypeMacro
 						$v{inClass.name}
 						+ '.setState() took more than 100ms (' + Math.round(delta * 1000) + 'ms), '
 						+ 'which seems to indicate that it triggered an immediate render'
+						+ '\n' + haxe.Log.formatOutput('Called from here', pos)
 						// TODO: more documentation on first warning
 						// See https://www.bennadel.com/blog/2893-setstate-state-mutation-operation-may-be-synchronous-in-reactjs.htm
 					);
+
 				}
 			}
 
