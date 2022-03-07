@@ -539,6 +539,7 @@ class ReactMacro
 		if (neededAttrsCache.exists(key)) return neededAttrsCache.get(key);
 
 		var neededAttrs = [];
+		var skipCache = false;
 
 		function hasEmptyAttrs(name:String):Bool {
 			return switch (name) {
@@ -559,18 +560,20 @@ class ReactMacro
 		}
 
 		switch (type) {
+			case TDynamic(null):
 			case TType(_.toString() => name, []) if (hasEmptyAttrs(name)):
 			case TType(_.toString() => name, []) if (hasOnlyChildren(name)):
 				neededAttrs.push("children");
 
 			case TAnonymous(_.get().fields => fields) |
 			TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _):
+				skipCache = true;
 				for (f in fields) if (!f.meta.has(':optional')) neededAttrs.push(f.name);
 
 			default:
 		}
 
-		neededAttrsCache.set(key, neededAttrs);
+		if (!skipCache) neededAttrsCache.set(key, neededAttrs);
 		return neededAttrs;
 	}
 	#end
