@@ -1,4 +1,5 @@
 package react;
+import js.Syntax;
 import haxe.extern.EitherType;
 
 typedef ReactComponentProps = {
@@ -91,7 +92,7 @@ class ReactComponentOf<TProps, TState>
 
 	static function __init__():Void {
 		// required magic value to tag literal react elements
-		untyped __js__("var $$tre = (typeof Symbol === \"function\" && Symbol.for && Symbol.for(\"react.element\")) || 0xeac7");
+		Syntax.code("var $$tre = (typeof Symbol === \"function\" && Symbol.for && Symbol.for(\"react.element\")) || 0xeac7");
 	}
 }
 

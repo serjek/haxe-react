@@ -1,5 +1,6 @@
 package;
 
+import js.Syntax;
 import massive.munit.Assert;
 import react.ReactComponent;
 import react.ReactMacro.jsx;
@@ -63,8 +64,8 @@ class ReactMacroTest
 	@BeforeClass
 	public function setup()
 	{
-		untyped __js__("$global.CompExtern = function() {}");
-		untyped __js__("$global.CompExternModule = function() {}");
+		Syntax.code("$global.CompExtern = function() {}");
+		Syntax.code("$global.CompExternModule = function() {}");
 	}
 
 	@Test

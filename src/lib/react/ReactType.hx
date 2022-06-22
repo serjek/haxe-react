@@ -11,7 +11,7 @@ abstract ReactType(Dynamic)
 #else
 import react.ReactComponent;
 
-private typedef Node = EitherType<EitherType<String, Function>, Class<ReactComponent<Dynamic, Dynamic>>>;
+private typedef Node = EitherType<EitherType<String, Function>, Class<ReactComponent>>;
 
 abstract ReactType(Node) to Node
 #end
@@ -45,7 +45,7 @@ abstract ReactType(Node) to Node
 	}
 
 	@:from
-	static public function fromComp(cls:Class<ReactComponent<Dynamic, Dynamic>>):ReactType
+	static public function fromComp(cls:Class<ReactComponent>):ReactType
 	{
 		#if debug
 		if (cls == null) return isNull();
