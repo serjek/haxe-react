@@ -9,4 +9,4 @@ example-filterproducts/node_modules
 test/report/
 test/build/
 haxe-react.zip
-
+.haxelib
